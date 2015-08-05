@@ -24,6 +24,12 @@ ApplicationWindow {
     }
 
     MainForm {
+        id: mainForm;
+        z: 0
+        anchors.rightMargin: 0
+        anchors.bottomMargin: 0
+        anchors.leftMargin: 0
+        anchors.topMargin: 0
         anchors.fill: parent
         button1.onClicked: messageDialog.show(qsTr("Button 1 pressed"))
         button2.onClicked: messageDialog.show(qsTr("Button 2 pressed"))
@@ -49,7 +55,7 @@ ApplicationWindow {
             fileDialog.visible = true;
         }
         onAccepted: {
-            preveiew.
+            mainForm.preview.source = fileDialog.fileUrl;
             console.log("You chose: " + fileDialog.fileUrls)
         }
     }

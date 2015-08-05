@@ -3,9 +3,11 @@ import QtQuick.Controls 1.3
 import QtQuick.Layouts 1.1
 
 Item {
+    id: item1
     width: 640
     height: 480
 
+    property alias preview: preview
     property alias button3: button3
     property alias button2: button2
     property alias button1: button1
@@ -13,9 +15,6 @@ Item {
     RowLayout {
         width: 350
         height: 30
-        anchors.verticalCenterOffset: -217
-        anchors.horizontalCenterOffset: -137
-        anchors.centerIn: parent
 
         Button {
             id: button1
@@ -35,10 +34,8 @@ Item {
 
     Image {
         id: preview
-        x: 8
-        y: 44
-        width: 624
-        height: 428
+        anchors.topMargin: 49
+        anchors.fill: parent
         source: "qrc:/qtquickplugin/images/template_image.png"
     }
 
