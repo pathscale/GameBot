@@ -2,11 +2,13 @@ TEMPLATE = app
 
 QT += qml quick widgets
 
-SOURCES += main.cpp \
-    cocbattlefield.cpp \
-    botprogram.cpp
+SOURCES += \
+    src/botprogram.cpp \
+    src/cocbattlefield.cpp \
+    src/main.cpp
 
-RESOURCES += qml.qrc
+RESOURCES += \
+    qml/qml.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -15,8 +17,8 @@ QML_IMPORT_PATH =
 include(deployment.pri)
 
 HEADERS += \
-    cocbattlefield.h \
-    botprogram.h
+    src/botprogram.h \
+    src/cocbattlefield.h
 
 LIBS += \
     -lopencv_core \
@@ -24,4 +26,7 @@ LIBS += \
     -lopencv_imgproc
 
 DISTFILES += \
-    README.md
+    README.md \
+    qml/MainForm.ui.qml \
+    qml/DamageArea.qml \
+    qml/main.qml
