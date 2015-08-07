@@ -36,7 +36,8 @@ Item {
         id: preview
         anchors.topMargin: 49
         anchors.fill: parent
-        source: "qrc:/qtquickplugin/images/template_image.png"
+        fillMode: Image.PreserveAspectFit
+        source: ""
     }
 
     CheckBox {
