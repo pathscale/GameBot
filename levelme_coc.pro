@@ -22,3 +22,6 @@ LIBS += \
     -lopencv_core \
     -lopencv_highgui \
     -lopencv_imgproc
+
+DISTFILES += \
+    README.md
