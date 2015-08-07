@@ -1,7 +1,8 @@
 #include "cocbattlefield.h"
 
-CocBattlefield::CocBattlefield(QObject *parent) : QObject(parent)
-{
+CocBattlefield::CocBattlefield(const QString &filepath)
+{}
 
+const QRect CocBattlefield::analyze() {
+    return QRect(10, 10, 100, 100);
 }
-

@@ -3,7 +3,7 @@ import QtQuick.Controls 1.3
 import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
 
-import CocBot 1.0
+import levelme 1.0
 
 ApplicationWindow {
     title: qsTr("Hello World")
@@ -13,6 +13,26 @@ ApplicationWindow {
 
     CocBot {
         id: bot
+        onHeatmapChanged: {
+            console.log("heatmap changed");
+            var component = Qt.createComponent("DamageArea.qml");
+            if (component.status == Component.Ready) {
+                 var dynamicObject = component.createObject(mainForm.preview, {"x": dmg.x,
+                                                                               "y": dmg.y,
+                                                                               "width": dmg.width,
+                                                                               "height": dmg.height});
+                 if (dynamicObject == null) {
+                     console.log("error creating block");
+                     console.log(component.errorString());
+                     return
+                 }
+             } else {
+                 console.log("error loading block component");
+                 console.log(component.errorString());
+                 return
+             }
+            //mainForm.preview.
+        }
     }
 
     menuBar: MenuBar {
@@ -61,9 +81,9 @@ ApplicationWindow {
             fileDialog.visible = true;
         }
         onAccepted: {
+            console.log("loading " + fileDialog.fileUrl)
             mainForm.preview.source = fileDialog.fileUrl;
             bot.loadUrl(fileDialog.fileUrl)
-            console.log("You chose: " + fileDialog.fileUrls)
         }
     }
 }

@@ -6,7 +6,7 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    qmlRegisterType<BotProgram>("CocBot", 1,0, "CocBot");
+    qmlRegisterType<BotProgram>("levelme", 1,0, "CocBot");
 
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));

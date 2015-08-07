@@ -1,15 +1,14 @@
 #ifndef COCBATTLEFIELD_H
 #define COCBATTLEFIELD_H
 
-#include <QObject>
+#include <QString>
+#include <QRect>
 
-class CocBattlefield : public QObject
+class CocBattlefield
 {
-    Q_OBJECT
 public:
-    explicit CocBattlefield(QObject *parent = 0);
-
-signals:
+    CocBattlefield(const QString &filepath);
+    const QRect analyze();
 };
 
 #endif // COCBATTLEFIELD_H
