@@ -32,13 +32,17 @@ Item {
         }
     }
 
-    Image {
-        id: preview
-        anchors.topMargin: 49
+    ScrollView {
+        anchors.topMargin: 44
         anchors.fill: parent
-        fillMode: Image.PreserveAspectFit
-        source: ""
+        Image {
+            id: preview
+            fillMode: Image.Pad
+            source: ""
+        }
     }
+
+
 
     CheckBox {
         id: damage

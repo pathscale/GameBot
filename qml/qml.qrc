@@ -3,5 +3,6 @@
         <file>main.qml</file>
         <file>MainForm.ui.qml</file>
         <file>DamageArea.qml</file>
+        <file>MatchBox.qml</file>
     </qresource>
 </RCC>
