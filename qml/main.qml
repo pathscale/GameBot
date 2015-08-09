@@ -15,7 +15,7 @@ ApplicationWindow {
         id: bot
         onHeatmapChanged: {
             console.log("heatmap changed");
-            var component = Qt.createComponent("DamageArea.qml");
+            var component = Qt.createComponent("MatchBox.qml");
             if (component.status == Component.Ready) {
                  var dynamicObject = component.createObject(mainForm.preview, {"x": dmg.x,
                                                                                "y": dmg.y,
@@ -31,7 +31,10 @@ ApplicationWindow {
                  console.log(component.errorString());
                  return
              }
-            //mainForm.preview.
+        }
+        onDebugChanged: {
+            console.log("debug changed:" + url);
+            mainForm.debug_layer.source = url;
         }
     }
 
@@ -57,19 +60,6 @@ ApplicationWindow {
         anchors.leftMargin: 0
         anchors.topMargin: 0
         anchors.fill: parent
-        button1.onClicked: messageDialog.show(qsTr("Button 1 pressed"))
-        button2.onClicked: messageDialog.show(qsTr("Button 2 pressed"))
-        button3.onClicked: messageDialog.show(qsTr("Button 3 pressed"))
-    }
-
-    MessageDialog {
-        id: messageDialog
-        title: qsTr("May I have your attention, please?")
-
-        function show(caption) {
-            messageDialog.text = caption;
-            messageDialog.open();
-        }
     }
 
     FileDialog {
