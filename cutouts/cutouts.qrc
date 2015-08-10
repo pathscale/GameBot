@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/cutouts">
+        <file>TH9.png</file>
+    </qresource>
+</RCC>

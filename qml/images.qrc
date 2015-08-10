@@ -1,2 +1,5 @@
-<RCC/>
-
+<RCC>
+    <qresource prefix="/">
+        <file>../cutouts/TH9.png</file>
+    </qresource>
+</RCC>

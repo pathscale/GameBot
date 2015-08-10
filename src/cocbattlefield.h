@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QString>
 #include <QRect>
+#include <QFile>
+#include <QDataStream>
 
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -17,10 +19,25 @@ signals:
     void debugChanged(const QString &filename);
 };
 
+inline cv::Mat load_qfile(QString path) {
+    QFile f(path);
+    if (!f.open(QIODevice::ReadOnly)) {
+        return cv::Mat();
+    }
+    QDataStream instream(&f);
+    std::vector<char> data;
+    while (!instream.atEnd()) {
+        char chunk[1024];
+        int readsize = instream.readRawData(chunk, 1024);
+        data.insert(data.end(), &chunk[0], &chunk[readsize]);
+    }
+    return cv::imdecode(cv::InputArray(data), 1);
+}
+
 class CocBattlefield
 {
     cv::Mat screen;
-    cv::Mat templ = cv::imread("../levelme_coc/images/0x4_small.png");
+    cv::Mat templ = load_qfile(":/cutouts/TH9.png");
     BattlefieldSignals *sig;
 public:
     CocBattlefield(const QString &filepath, BattlefieldSignals *proxy=NULL);

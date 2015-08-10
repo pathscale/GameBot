@@ -56,8 +56,10 @@ Item {
         id: debug_ctrls
         SpinBox {
             id: thr_spin
-            x: 224
-            y: 54
+            x: 267
+            y: 53
+            width: 64
+            height: 24
             value: 256
             maximumValue: 256
             onValueChanged: debug_gray2a.thr = value / maximumValue
@@ -65,8 +67,8 @@ Item {
 
         Label {
             id: thr_label
-            x: 296
-            y: 54
+            x: 353
+            y: 56
             text: qsTr("min_match * 256")
         }
 
@@ -74,6 +76,8 @@ Item {
             id: thr_slider
             x: 8
             y: 54
+            width: 243
+            height: 22
             value: thr_spin.value
             maximumValue: thr_spin.maximumValue
             onValueChanged: thr_spin.value = value;
