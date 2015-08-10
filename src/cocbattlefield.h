@@ -10,6 +10,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+// Program logic. Only basic Qt types allowed (TODO)
+
 class BattlefieldSignals : public QObject
 {
     Q_OBJECT
@@ -19,6 +21,7 @@ signals:
     void debugChanged(const QString &filename);
 };
 
+// FIXME: move to a resource manager
 inline cv::Mat load_qfile(QString path) {
     QFile f(path);
     if (!f.open(QIODevice::ReadOnly)) {
@@ -37,11 +40,13 @@ inline cv::Mat load_qfile(QString path) {
 class CocBattlefield
 {
     cv::Mat screen;
-    cv::Mat templ = load_qfile(":/cutouts/TH9.png");
+    cv::Mat townHall = load_qfile(":/cutouts/TH9.png");
+    cv::Mat fw = load_qfile(":/cutouts/defense/fw0.png");
     BattlefieldSignals *sig;
+
 public:
     CocBattlefield(const QString &filepath, BattlefieldSignals *proxy=NULL);
-    const QRect analyze();
+    const QVariantList analyze();
 };
 
 #endif // COCBATTLEFIELD_H

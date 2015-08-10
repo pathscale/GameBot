@@ -15,6 +15,7 @@ void BotProgram::onDebugChanged(const QString &filename) {
 void BotProgram::loadUrl(const QUrl &url) {
     this->battlefield = new CocBattlefield(url.toLocalFile(), &sigs);
 
+
     emit this->heatmapChanged(this->battlefield->analyze());
 }
 

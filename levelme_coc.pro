@@ -2,6 +2,8 @@ TEMPLATE = app
 
 QT += qml quick widgets
 
+CONFIG += c++11
+
 SOURCES += \
     src/botprogram.cpp \
     src/cocbattlefield.cpp \

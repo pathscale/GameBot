@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/cutouts">
         <file>TH9.png</file>
+        <file>defense/fw0.png</file>
     </qresource>
 </RCC>

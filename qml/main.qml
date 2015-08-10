@@ -15,22 +15,27 @@ ApplicationWindow {
         id: bot
         onHeatmapChanged: {
             console.log("heatmap changed");
-            var component = Qt.createComponent("MatchBox.qml");
-            if (component.status == Component.Ready) {
-                 var dynamicObject = component.createObject(mainForm.preview, {"x": dmg.x,
-                                                                               "y": dmg.y,
-                                                                               "width": dmg.width,
-                                                                               "height": dmg.height});
-                 if (dynamicObject == null) {
-                     console.log("error creating block");
-                     console.log(component.errorString());
-                     return
-                 }
-             } else {
-                 console.log("error loading block component");
-                 console.log(component.errorString());
-                 return
-             }
+            console.log(dmg.length);
+            for (var i = 0; i < dmg.length; i++) {
+                var d = dmg[i];
+                console.log(d);
+                var component = Qt.createComponent("MatchBox.qml");
+                if (component.status == Component.Ready) {
+                    var dynamicObject = component.createObject(mainForm.preview, {"x": d.x,
+                                                                                  "y": d.y,
+                                                                                  "width": d.width,
+                                                                                  "height": d.height});
+                    if (dynamicObject == null) {
+                        console.log("error creating block");
+                        console.log(component.errorString());
+                        return
+                    }
+                } else {
+                    console.log("error loading block component");
+                    console.log(component.errorString());
+                    return
+                }
+            }
         }
         onDebugChanged: {
             console.log("debug changed:" + url);
