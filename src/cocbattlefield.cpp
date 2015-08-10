@@ -71,11 +71,9 @@ std::list<Match> FindAllMatches(const cv::Mat &img, const cv::Mat &templ, int ma
 {
     cv::Mat result = doMatch(img, templ, match_method);
 
-    int count = 0;
-    int max_matches = 6;
     std::list<Match> matches;
 
-    while (count < max_matches)
+    for(int i = 0; i < 100; i++) // end condition is the threshold check; 100 in case of stupid threshold
     {
         double minVal, maxVal;
         cv::Point minLoc, maxLoc;
@@ -84,29 +82,25 @@ std::list<Match> FindAllMatches(const cv::Mat &img, const cv::Mat &templ, int ma
         // For SQDIFF and SQDIFF_NORMED, the best matches are lower values. For all the other methods, the higher the better
         double matchVal = (match_method==CV_TM_SQDIFF || match_method==CV_TM_SQDIFF_NORMED) ? minVal : maxVal;
 
-        if ( ((match_method==CV_TM_SQDIFF || match_method==CV_TM_SQDIFF_NORMED) && matchVal <= threshold) ||
-             (match_method!=CV_TM_SQDIFF && match_method!=CV_TM_SQDIFF_NORMED && matchVal >= threshold) )
-        {
-            cv::Point matchLoc = (match_method==CV_TM_SQDIFF || match_method==CV_TM_SQDIFF_NORMED) ? minLoc : maxLoc;
-
-            // FIXME: maybe useful but doesn't belong here. Fill haystack with pure green so we don't match this same location
-            //cv::rectangle(img, matchLoc, cv::Point(matchLoc.x + templ.cols, matchLoc.y + templ.rows),
-              //              CV_RGB(0,255,0), 2);
-
-            // Fill results array with hi or lo vals, so we don't match this same location
-            cv::Scalar fillVal = (match_method==CV_TM_SQDIFF || match_method==CV_TM_SQDIFF_NORMED) ? 1 : 0;
-            cv::floodFill(result, matchLoc, fillVal, 0, cv::Scalar(0.1), cv::Scalar(1.0));
-
-            // Add matched location to the vector
-            //matches[count].x = matchLoc.x + templ.cols/2; // for midpoint
-            //matches[count].y = matchLoc.y + templ.rows/2;
-            matches.push_back(Match(matchLoc.x, matchLoc.y, matchVal));
-            count++;
-        }
-        else
-        {
+        if (((match_method==CV_TM_SQDIFF || match_method==CV_TM_SQDIFF_NORMED) && matchVal > threshold) ||
+             (match_method!=CV_TM_SQDIFF && match_method!=CV_TM_SQDIFF_NORMED && matchVal < threshold) ) {
             break;
         }
+
+        cv::Point matchLoc = (match_method==CV_TM_SQDIFF || match_method==CV_TM_SQDIFF_NORMED) ? minLoc : maxLoc;
+
+        // FIXME: maybe useful but doesn't belong here. Fill haystack with pure green so we don't match this same location
+        //cv::rectangle(img, matchLoc, cv::Point(matchLoc.x + templ.cols, matchLoc.y + templ.rows),
+          //              CV_RGB(0,255,0), 2);
+
+        // Fill results array with hi or lo vals, so we don't match this same location
+        cv::Scalar fillVal = (match_method==CV_TM_SQDIFF || match_method==CV_TM_SQDIFF_NORMED) ? 1 : 0;
+        cv::floodFill(result, matchLoc, fillVal, 0, cv::Scalar(0.1), cv::Scalar(1.0));
+
+        // Add matched location to the vector
+        //matches[count].x = matchLoc.x + templ.cols/2; // for midpoint
+        //matches[count].y = matchLoc.y + templ.rows/2;
+        matches.push_back(Match(matchLoc.x, matchLoc.y, matchVal));
     }
     return matches;
 }
