@@ -7,7 +7,8 @@ CONFIG += c++11
 SOURCES += \
     src/botprogram.cpp \
     src/cocbattlefield.cpp \
-    src/main.cpp
+    src/main.cpp \
+    src/resourcemanager.cpp
 
 RESOURCES += \
     qml/qml.qrc \
@@ -21,7 +22,8 @@ include(deployment.pri)
 
 HEADERS += \
     src/botprogram.h \
-    src/cocbattlefield.h
+    src/cocbattlefield.h \
+    src/resourcemanager.h
 
 LIBS += \
     -lopencv_core \

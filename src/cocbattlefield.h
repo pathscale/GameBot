@@ -8,7 +8,8 @@
 #include <QDataStream>
 
 #include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
+
+#include "resourcemanager.h"
 
 // Program logic. Only basic Qt types allowed (TODO)
 
@@ -21,31 +22,13 @@ signals:
     void debugChanged(const QString &filename);
 };
 
-// FIXME: move to a resource manager
-inline cv::Mat load_qfile(QString path) {
-    QFile f(path);
-    if (!f.open(QIODevice::ReadOnly)) {
-        return cv::Mat();
-    }
-    QDataStream instream(&f);
-    std::vector<char> data;
-    while (!instream.atEnd()) {
-        char chunk[1024];
-        int readsize = instream.readRawData(chunk, 1024);
-        data.insert(data.end(), &chunk[0], &chunk[readsize]);
-    }
-    return cv::imdecode(cv::InputArray(data), 1);
-}
-
 class CocBattlefield
 {
     cv::Mat screen;
-    cv::Mat townHall = load_qfile(":/cutouts/TH9.png");
-    cv::Mat fw = load_qfile(":/cutouts/defense/fw0.png");
+    ResourceManager *buildings;
     BattlefieldSignals *sig;
-
 public:
-    CocBattlefield(const QString &filepath, BattlefieldSignals *proxy=NULL);
+    CocBattlefield(const QString &filepath, ResourceManager *buildings, BattlefieldSignals *proxy=NULL);
     const QVariantList analyze();
 };
 

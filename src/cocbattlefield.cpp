@@ -1,6 +1,8 @@
 #include "cocbattlefield.h"
 #include <QDebug>
 
+#include <opencv2/highgui/highgui.hpp>
+
 BattlefieldSignals::BattlefieldSignals(QObject *parent) : QObject(parent)
 {}
 
@@ -18,10 +20,8 @@ cv::Mat doMatch(cv::Mat img, cv::Mat templ, int match_method, float threshold=0.
 
     // Do the Matching and Normalize
     //  Method = 0: CV_TM_SQDIFF, 1: CV_TM_SQDIFF_NORMED 2: CV_TM_CCORR 3: CV_TM_CCORR_NORMED 4: CV_TM_CCOEFF 5: CV_TM_CCOEFF_NORMED
-    //match_method = CV_TM_CCOEFF_NORMED;
-    cv::matchTemplate(img, templ, result, match_method );
-    cv::threshold(result, result, 0.9, 1.0, CV_THRESH_TOZERO);
-    //normalize( result, result, 1, 100, NORM_MINMAX, -1, Mat() );
+    cv::matchTemplate(img, templ, result, match_method);
+    cv::threshold(result, result, threshold, 1.0, CV_THRESH_TOZERO);
 
     return result;
 }
@@ -29,7 +29,7 @@ cv::Mat doMatch(cv::Mat img, cv::Mat templ, int match_method, float threshold=0.
 class Match {
 public:
     QPoint pos;
-    float value;
+    float value; // if methods other than TM_CCORR_NORMED are ever used, value should be normalized to reflect accuracy and not raw match
     Match(int x, int y, float value)
         : pos(x, y), value(value)
     {}
@@ -54,8 +54,6 @@ Match FindBestMatch(const cv::Mat &img, const cv::Mat &templ, const int match_me
     // For SQDIFF and SQDIFF_NORMED, the best matches are lower values. For all the other methods, the higher the better
     cv::Point matchLoc = (match_method  == CV_TM_SQDIFF || match_method == CV_TM_SQDIFF_NORMED) ? minLoc : maxLoc;
     double matchVal = (match_method  == CV_TM_SQDIFF || match_method == CV_TM_SQDIFF_NORMED) ? minVal : maxVal;
-    //int x = matchLoc.x + templ.cols/2; // for midpoint
-    //int y = matchLoc.y + templ.rows/2;
     int x = matchLoc.x;
     int y = matchLoc.y;
 
@@ -105,18 +103,21 @@ std::list<Match> FindAllMatches(const cv::Mat &img, const cv::Mat &templ, int ma
     return matches;
 }
 
-CocBattlefield::CocBattlefield(const QString &filepath, BattlefieldSignals *proxy)
+CocBattlefield::CocBattlefield(const QString &filepath, ResourceManager *buildings, BattlefieldSignals *proxy)
     : screen(cv::imread(filepath.toStdString())),
+      buildings(buildings),
       sig(proxy)
 {
-    if ((screen.data == NULL) || (townHall.data == NULL)) {
-        qDebug() << "abandon ship, some images didn't load (FIXME: catch gracefully)";
+    if (screen.data == NULL) {
+        qDebug() << "abandon ship, screen image didn't load (FIXME: catch gracefully)";
     } else {
         qDebug() << "loaded images Ok";
     }
 }
 
 const QVariantList CocBattlefield::analyze() {
+    const cv::Mat townHall = buildings->getImage("TH9");
+    const cv::Mat fw = buildings->getImage(("fw0"));
     Match townMatch = FindBestMatch(screen, townHall, CV_TM_CCORR_NORMED);
     std::list<Match> defenseMatches = FindAllMatches(screen, fw, CV_TM_CCORR_NORMED);
     // TODO: get rid of Qt containers in logic code and move a generic building structure
