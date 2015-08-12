@@ -60,7 +60,7 @@ static Match FindBestMatch(const cv::Mat &img, const cv::Mat &templ, const int m
     return Match(x, y, matchVal);
 }
 
-static std::list<Match> FindAllMatches(const cv::Mat &img, const cv::Mat &templ, int match_method, double threshold=0.9)
+static std::list<Match> FindAllMatches(const cv::Mat &img, const cv::Mat &templ, int match_method, double threshold=0.95)
 {
     cv::Mat result = doMatch(img, templ, match_method); // FIXME for performance - make method of some object with lifetime linked to BattleField, overallocate and reuse
 
