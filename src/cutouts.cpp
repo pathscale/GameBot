@@ -5,5 +5,6 @@
 const FeatureList cutouts {
     _T("TH9", "TH9.png", 1),
     _T("FW0", "defense/fw0.png", 0),
+    _T("TR0", "props/TR0.png", 0),
 };
 

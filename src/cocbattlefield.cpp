@@ -1,6 +1,8 @@
 #include "cocbattlefield.h"
 #include <QDebug>
 
+#include <functional>
+
 #include <opencv2/highgui/highgui.hpp>
 
 BattlefieldSignals::BattlefieldSignals(QObject *parent) : QObject(parent)
@@ -8,7 +10,7 @@ BattlefieldSignals::BattlefieldSignals(QObject *parent) : QObject(parent)
 
 // image matching
 
-cv::Mat doMatch(cv::Mat img, cv::Mat templ, int match_method, float threshold=0.9)
+static cv::Mat doMatch(cv::Mat img, cv::Mat templ, int match_method, float threshold=0.9)
 {
     cv::Mat result;
 
@@ -35,16 +37,9 @@ public:
     {}
 };
 
-Match FindBestMatch(const cv::Mat &img, const cv::Mat &templ, const int match_method)
+static Match FindBestMatch(const cv::Mat &img, const cv::Mat &templ, const int match_method)
 {
     cv::Mat result = doMatch(img, templ, match_method);
-
-    /*// Debug
-    char* image_window = "Source Image";
-    namedWindow( image_window, CV_WINDOW_AUTOSIZE );
-    Mat img_display;
-    img.copyTo( img_display );
-    */
 
     // Localize the best match with minMaxLoc
     double minVal, maxVal;
@@ -65,9 +60,9 @@ Match FindBestMatch(const cv::Mat &img, const cv::Mat &templ, const int match_me
     return Match(x, y, matchVal);
 }
 
-std::list<Match> FindAllMatches(const cv::Mat &img, const cv::Mat &templ, int match_method, double threshold=0.9)
+static std::list<Match> FindAllMatches(const cv::Mat &img, const cv::Mat &templ, int match_method, double threshold=0.9)
 {
-    cv::Mat result = doMatch(img, templ, match_method);
+    cv::Mat result = doMatch(img, templ, match_method); // FIXME for performance - make method of some object with lifetime linked to BattleField, overallocate and reuse
 
     std::list<Match> matches;
 
@@ -116,12 +111,29 @@ CocBattlefield::CocBattlefield(const QString &filepath, ResourceManager *buildin
 }
 
 const QVariantList CocBattlefield::analyze() {
-    const cv::Mat townHall = buildings->getImage("TH9").img;
-    const cv::Mat fw = buildings->getImage(("FW0")).img;
-    Match townMatch = FindBestMatch(screen, townHall, CV_TM_CCORR_NORMED);
-    std::list<Match> defenseMatches = FindAllMatches(screen, fw, CV_TM_CCORR_NORMED);
     // TODO: get rid of Qt containers in logic code and move a generic building structure
     QVariantList boxen;
+
+    std::function<QVariant(const Match&, const Template&)> to_QML =
+            [](const Match &m, const Template &t) {
+        QVariant box(QRect(m.pos, QSize(t.img.size().width, t.img.size().height)));
+        return box;
+    };
+
+    for (const Template *tmpl : buildings->getTemplates()) {
+        if (tmpl->maxCount == 1) {
+            const Match m = FindBestMatch(screen, tmpl->img, CV_TM_CCORR_NORMED);
+            if (m.value > 0) {
+                boxen.append(to_QML(m, *tmpl));
+            }
+        } else {
+            // FIXME: limited maxCount
+            for (const Match m : FindAllMatches(screen, tmpl->img, CV_TM_CCORR_NORMED)) {
+                boxen.append(to_QML(m, *tmpl));
+            }
+        }
+    }
+/*
     if (townMatch.value == 0) {
         qDebug() << "Town hall not found";
     } else {
@@ -132,6 +144,6 @@ const QVariantList CocBattlefield::analyze() {
         qDebug() << "match" << m.pos << "certain" << m.value;
         QVariant mbox(QRect(m.pos, QSize(fw.size().width, fw.size().height)));
         boxen.append(mbox);
-    }
+    }*/
     return boxen;
 }

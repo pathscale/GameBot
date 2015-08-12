@@ -26,9 +26,10 @@ typedef std::list<std::pair<const QString, const FeatureDesc>> FeatureList; // T
 class Template
 {
 public:
+    const QString _path; // for debug only
     cv::Mat img;
     int maxCount; // 0 == inf
-    Template(const cv::Mat &img, const int &maxCount);
+    Template(const cv::Mat &img, const int &maxCount, const QString &path="dynamic");
     Template(const FeatureDesc &td);
 };
 
@@ -41,6 +42,7 @@ inline TemplateMap load_from_ftrs(const FeatureList &features) {
     for (const std::pair<const QString, const FeatureDesc> ftr_pair : features) {
         const std::pair<const QString, Template> loaded(ftr_pair.first, ftr_pair.second);
         ret.insert(loaded);
+        qDebug() << "lft" << loaded.second._path;
     }
     return ret;
 }
@@ -48,7 +50,7 @@ inline TemplateMap load_from_ftrs(const FeatureList &features) {
 class ResourceManager
 {
     // TODO: templates should be one-call-scalable
-    TemplateMap templates;
+    TemplateMap templates; // template owner
 public:
     ResourceManager(const FeatureList &features);
     inline const Template getImage(const QString &name) {
@@ -56,6 +58,14 @@ public:
             qDebug() << "Requested template not found:" << name;
         }
         return templates.at(name);
+    }
+    // TODO: ideally, this should return an iterable
+    inline const std::list<const Template*> getTemplates() {
+        std::list<const Template*> ret;
+        for (const std::pair<const QString, const Template&> &item : templates) {
+            ret.push_back(&item.second);
+        }
+        return ret;
     }
 };
 
