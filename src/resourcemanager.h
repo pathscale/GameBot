@@ -5,17 +5,57 @@
 #include <QDebug>
 #include <opencv2/imgproc/imgproc.hpp>
 
+/* TemplData != Template because:
+ * 1. data must be immutable
+ * 2. loading images must be done after Qt resource system initializes
+ * 3. if lazy loading is used, it will cut into time allocated for processing - unacceptable
+ */
+
+class FeatureDesc {
+public:
+    const QString filename;
+    const int maxCount;
+    inline FeatureDesc(const QString &filename, const int &maxCount)
+        : filename(filename),
+          maxCount(maxCount)
+    {}
+};
+
+typedef std::list<std::pair<const QString, const FeatureDesc>> FeatureList; // TODO: std::pair should be const, but how to do it?
+
+class Template
+{
+public:
+    cv::Mat img;
+    int maxCount; // 0 == inf
+    Template(const cv::Mat &img, const int &maxCount);
+    Template(const FeatureDesc &td);
+};
+
+typedef std::map<const QString, Template> TemplateMap; // loaded object
+
+inline TemplateMap load_from_ftrs(const FeatureList &features) {
+    // Don't use before Qt resource system is initialized!
+    TemplateMap ret;
+    // does resource loading by converting FeatureDesc into Template objects (actual loading in constructor)
+    for (const std::pair<const QString, const FeatureDesc> ftr_pair : features) {
+        const std::pair<const QString, Template> loaded(ftr_pair.first, ftr_pair.second);
+        ret.insert(loaded);
+    }
+    return ret;
+}
+
 class ResourceManager
 {
-    const QString path;
-    std::map<const QString, cv::Mat> images;
+    // TODO: templates should be one-call-scalable
+    TemplateMap templates;
 public:
-    ResourceManager(const QString &path);
-    inline const cv::Mat getImage(const QString &rel_filename) {
-        if (images.find(rel_filename) == images.end()) {
-            qDebug() << "Requested resource not found:" << rel_filename;
+    ResourceManager(const FeatureList &features);
+    inline const Template getImage(const QString &name) {
+        if (templates.find(name) == templates.end()) {
+            qDebug() << "Requested template not found:" << name;
         }
-        return images[rel_filename];
+        return templates.at(name);
     }
 };
 

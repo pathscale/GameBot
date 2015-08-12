@@ -116,8 +116,8 @@ CocBattlefield::CocBattlefield(const QString &filepath, ResourceManager *buildin
 }
 
 const QVariantList CocBattlefield::analyze() {
-    const cv::Mat townHall = buildings->getImage("TH9");
-    const cv::Mat fw = buildings->getImage(("fw0"));
+    const cv::Mat townHall = buildings->getImage("TH9").img;
+    const cv::Mat fw = buildings->getImage(("FW0")).img;
     Match townMatch = FindBestMatch(screen, townHall, CV_TM_CCORR_NORMED);
     std::list<Match> defenseMatches = FindAllMatches(screen, fw, CV_TM_CCORR_NORMED);
     // TODO: get rid of Qt containers in logic code and move a generic building structure

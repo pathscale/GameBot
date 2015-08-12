@@ -7,6 +7,7 @@
 #include <QRect>
 #include "cocbattlefield.h"
 #include "resourcemanager.h"
+#include "cutouts.h"
 
 /** This class embodies the whole program, UI and all */
 
@@ -16,7 +17,7 @@ class BotProgram : public QObject
     QString url;
     CocBattlefield *battlefield = NULL;
     BattlefieldSignals sigs;
-    ResourceManager buildings = ResourceManager(":/cutouts");
+    ResourceManager buildings = ResourceManager(cutouts);
 public:
     explicit BotProgram(QObject *parent = 0);
     Q_INVOKABLE void loadUrl(const QUrl &url);

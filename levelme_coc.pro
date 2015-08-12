@@ -8,7 +8,8 @@ SOURCES += \
     src/botprogram.cpp \
     src/cocbattlefield.cpp \
     src/main.cpp \
-    src/resourcemanager.cpp
+    src/resourcemanager.cpp \
+    src/cutouts.cpp
 
 RESOURCES += \
     qml/qml.qrc \
@@ -23,7 +24,8 @@ include(deployment.pri)
 HEADERS += \
     src/botprogram.h \
     src/cocbattlefield.h \
-    src/resourcemanager.h
+    src/resourcemanager.h \
+    src/cutouts.h
 
 LIBS += \
     -lopencv_core \
