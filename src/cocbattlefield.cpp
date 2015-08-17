@@ -113,25 +113,29 @@ CocBattlefield::CocBattlefield(const QString &filepath, ResourceManager *buildin
 }
 
 const QVariantList CocBattlefield::analyze() {
-    qDebug() << "scale:" << this->find_scale();
+    this->buildings->setScale(this->find_scale());
     // TODO: get rid of Qt containers in logic code and move to a UI building part
     QVariantList boxen;
 
-    std::function<QVariant(const Match&, const Template&)> to_QML =
-            [](const Match &m, const Template &t) {
+    std::function<QVariant(const Match&, const Feature&)> to_QML =
+            [](const Match &m, const Feature &t) {
         QVariant box(QRect(m.pos, QSize(t.img.size().width, t.img.size().height)));
         return box;
     };
 
-    for (const Template *tmpl : buildings->getTemplates()) {
+    for (const Feature *tmpl : buildings->getTemplates()) {
         if (tmpl->maxCount == 1) {
             const Match m = FindBestMatch(screen, tmpl->img, CV_TM_CCORR_NORMED);
             if (m.value > 0) {
                 boxen.append(to_QML(m, *tmpl));
+            } else {
+                qDebug() << "Not found" << tmpl->_path;
             }
         } else {
             // FIXME: limited maxCount
-            for (const Match m : FindAllMatches(screen, tmpl->img, CV_TM_CCORR_NORMED)) {
+            const std::list<Match> matches = FindAllMatches(screen, tmpl->img, CV_TM_CCORR_NORMED);
+            qDebug() << "Found" << matches.size() << "of" << tmpl->_path;
+            for (const Match &m : matches) {
                 boxen.append(to_QML(m, *tmpl));
             }
         }
@@ -145,7 +149,7 @@ static float best_match(const cv::Mat &image, const cv::Mat &templ) {
 
 
 // XXX: store likely scales (resolution-based) and match against them opportunistically?
-static float do_steps(const cv::Mat &image, const cv::Mat &templ, float minScale, float maxScale, double stepSize = 1.1, float threshold = 0.95, float max_precision = 0.002) { // speed: some stepSize values will be better than others
+static float do_steps(const cv::Mat &image, const cv::Mat &templ, float minScale, float maxScale, double stepSize = 1.1, float threshold = 0.96, float max_precision = 0.002) { // speed: some stepSize values will be better than others
     qDebug() << "steps" << minScale << "to" << maxScale << "by" << stepSize;
     if (maxScale - minScale < max_precision || stepSize < max_precision + 1) { // recursion stop condition
         qDebug() << "Scale not found";
@@ -179,7 +183,7 @@ static float do_steps(const cv::Mat &image, const cv::Mat &templ, float minScale
 
     struct find_res result = results.at(maxIdx);
     if (result.value > threshold) {
-        qDebug() << "found" << result.value;
+        qDebug() << "found scale with accuracy" << result.value;
         return result.scale;
     }
     if (results.size() == 1) {

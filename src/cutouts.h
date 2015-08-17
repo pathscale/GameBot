@@ -4,6 +4,6 @@
 #include <QString>
 #include "resourcemanager.h"
 
-extern const FeatureList cutouts;
+extern const FeatureDescList cutouts;
 
 #endif // CUTOUTS_H

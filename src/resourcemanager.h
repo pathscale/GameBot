@@ -21,26 +21,26 @@ public:
     {}
 };
 
-typedef std::list<std::pair<const QString, const FeatureDesc>> FeatureList; // TODO: std::pair should be const, but how to do it?
+typedef std::list<std::pair<const QString, const FeatureDesc>> FeatureDescList; // TODO: std::pair should be const, but how to do it?
 
-class Template
+class Feature
 {
 public:
     const QString _path; // for debug only
     cv::Mat img;
     int maxCount; // 0 == inf
-    Template(const cv::Mat &img, const int &maxCount, const QString &path="dynamic");
-    Template(const FeatureDesc &td);
+    Feature(const cv::Mat &img, const int &maxCount, const QString &path="dynamic");
+    Feature(const FeatureDesc &td);
 };
 
-typedef std::map<const QString, Template> TemplateMap; // loaded object
+typedef std::map<const QString, Feature> FeatureMap; // loaded object
 
-inline TemplateMap load_from_ftrs(const FeatureList &features) {
+inline FeatureMap load_from_ftrs(const FeatureDescList &features) {
     // Don't use before Qt resource system is initialized!
-    TemplateMap ret;
+    FeatureMap ret;
     // does resource loading by converting FeatureDesc into Template objects (actual loading in constructor)
     for (const std::pair<const QString, const FeatureDesc> ftr_pair : features) {
-        const std::pair<const QString, Template> loaded(ftr_pair.first, ftr_pair.second);
+        const std::pair<const QString, Feature> loaded(ftr_pair.first, ftr_pair.second);
         ret.insert(loaded);
     }
     return ret;
@@ -49,23 +49,22 @@ inline TemplateMap load_from_ftrs(const FeatureList &features) {
 class ResourceManager
 {
     // TODO: templates should be one-call-scalable
-    TemplateMap templates; // template owner
+    FeatureMap features; // template owner
+    double scale = 1;
+    FeatureMap scaledFeatures;
 public:
-    ResourceManager(const FeatureList &features);
-    inline const Template getImage(const QString &name) {
-        if (templates.find(name) == templates.end()) {
+    ResourceManager(const FeatureDescList &features);
+    inline const Feature getImage(const QString &name) {
+        if (features.find(name) == features.end()) {
             qDebug() << "Requested template not found:" << name;
         }
-        return templates.at(name);
+        return features.at(name);
     }
+
+    void setScale(double scale);
+
     // TODO: ideally, this should return an iterable
-    inline const std::list<const Template*> getTemplates() {
-        std::list<const Template*> ret;
-        for (const std::pair<const QString, const Template&> &item : templates) {
-            ret.push_back(&item.second);
-        }
-        return ret;
-    }
+    const std::list<const Feature*> getTemplates();
 };
 
 #endif // RESOURCEMANAGER_H
