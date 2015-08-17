@@ -23,7 +23,9 @@ static cv::Mat doMatch(cv::Mat img, cv::Mat templ, int match_method, float thres
     // Do the Matching and Normalize
     //  Method = 0: CV_TM_SQDIFF, 1: CV_TM_SQDIFF_NORMED 2: CV_TM_CCORR 3: CV_TM_CCORR_NORMED 4: CV_TM_CCOEFF 5: CV_TM_CCOEFF_NORMED
     cv::matchTemplate(img, templ, result, match_method);
-    cv::threshold(result, result, threshold, 1.0, CV_THRESH_TOZERO);
+    if (threshold != 0) {
+        cv::threshold(result, result, threshold, 1.0, CV_THRESH_TOZERO);
+    }
 
     return result;
 }
@@ -111,7 +113,8 @@ CocBattlefield::CocBattlefield(const QString &filepath, ResourceManager *buildin
 }
 
 const QVariantList CocBattlefield::analyze() {
-    // TODO: get rid of Qt containers in logic code and move a generic building structure
+    qDebug() << "scale:" << this->find_scale();
+    // TODO: get rid of Qt containers in logic code and move to a UI building part
     QVariantList boxen;
 
     std::function<QVariant(const Match&, const Template&)> to_QML =
@@ -133,17 +136,79 @@ const QVariantList CocBattlefield::analyze() {
             }
         }
     }
-/*
-    if (townMatch.value == 0) {
-        qDebug() << "Town hall not found";
-    } else {
-        QVariant tbox(QRect(townMatch.pos, QSize(townHall.size().width, townHall.size().height)));
-        boxen.append(tbox);
-    }
-    for (Match m : defenseMatches) {
-        qDebug() << "match" << m.pos << "certain" << m.value;
-        QVariant mbox(QRect(m.pos, QSize(fw.size().width, fw.size().height)));
-        boxen.append(mbox);
-    }*/
     return boxen;
+}
+
+static float best_match(const cv::Mat &image, const cv::Mat &templ) {
+    return FindBestMatch(image, templ, CV_TM_CCORR_NORMED).value;
+}
+
+
+// XXX: store likely scales (resolution-based) and match against them opportunistically?
+static float do_steps(const cv::Mat &image, const cv::Mat &templ, float minScale, float maxScale, double stepSize = 1.1, float threshold = 0.95, float max_precision = 0.002) { // speed: some stepSize values will be better than others
+    qDebug() << "steps" << minScale << "to" << maxScale << "by" << stepSize;
+    if (maxScale - minScale < max_precision || stepSize < max_precision + 1) { // recursion stop condition
+        qDebug() << "Scale not found";
+        return 0;
+    }
+
+    struct find_res {
+        double scale;
+        float value;
+    };
+
+    std::vector<struct find_res> results; // matching may give local maxima, they need to be ignored. Ideally, they should be investigated based on some threshold difference
+    float maxValue = 0;
+    unsigned int maxIdx = 0;
+    unsigned int i = 0;
+    cv::Mat scaled;
+    for (double curScale = minScale;
+         curScale <= maxScale; curScale *= stepSize, i++) {
+        cv::Size s(round(templ.rows * curScale), round(templ.cols * curScale));
+        scaled.create(s, templ.type());
+        cv::resize(templ, scaled, s, curScale, curScale);
+
+        const float curValue = best_match(image, scaled);
+        qDebug() << "@" << curScale << curValue;
+        results.push_back({curScale, curValue});
+        if (curValue > maxValue) {
+            maxValue = curValue;
+            maxIdx = i;
+        }
+    }
+
+    struct find_res result = results.at(maxIdx);
+    if (result.value > threshold) {
+        qDebug() << "found" << result.value;
+        return result.scale;
+    }
+    if (results.size() == 1) {
+        return result.scale;
+    }
+
+    // decide whether to dive into the interval in smaller or higher scales
+    minScale = result.scale; // safety
+
+    // smaller allowed - assume it's the case
+    float minValue = 0;
+    if (maxIdx > 0) {
+        minScale = results.at(maxIdx - 1).scale;
+        minValue = results.at(maxIdx - 1).value;
+    }
+    maxScale = result.scale;
+
+    if (maxIdx < results.size() - 1 && results.at(maxIdx + 1).value > minValue) {
+        // larger preferred, take over
+        minScale = result.scale;
+        maxScale = results.at(maxIdx + 1).scale;
+    }
+
+    return do_steps(image, templ, minScale, maxScale, pow(stepSize, 1./7), threshold, max_precision);
+}
+
+// find scale relative to images in owned buildings list
+float CocBattlefield::find_scale() {
+    // default prop - TR0, found on most screenshots
+    const cv::Mat probe = buildings->getImage("TR0").img;
+    return do_steps(screen, probe, 0.5, 2.0);
 }

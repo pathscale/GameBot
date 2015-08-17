@@ -27,9 +27,13 @@ class CocBattlefield
     cv::Mat screen;
     ResourceManager *buildings;
     BattlefieldSignals *sig;
+
 public:
     CocBattlefield(const QString &filepath, ResourceManager *buildings, BattlefieldSignals *proxy=NULL);
     const QVariantList analyze();
+
+protected:
+    float find_scale();
 };
 
 #endif // COCBATTLEFIELD_H

@@ -42,7 +42,6 @@ inline TemplateMap load_from_ftrs(const FeatureList &features) {
     for (const std::pair<const QString, const FeatureDesc> ftr_pair : features) {
         const std::pair<const QString, Template> loaded(ftr_pair.first, ftr_pair.second);
         ret.insert(loaded);
-        qDebug() << "lft" << loaded.second._path;
     }
     return ret;
 }

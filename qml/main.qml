@@ -15,10 +15,8 @@ ApplicationWindow {
         id: bot
         onHeatmapChanged: {
             console.log("heatmap changed");
-            console.log(dmg.length);
             for (var i = 0; i < dmg.length; i++) {
                 var d = dmg[i];
-                console.log(d);
                 var component = Qt.createComponent("MatchBox.qml");
                 if (component.status == Component.Ready) {
                     var dynamicObject = component.createObject(mainForm.preview, {"x": d.x,
