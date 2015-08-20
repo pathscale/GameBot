@@ -15,9 +15,11 @@ class FeatureDesc {
 public:
     const QString filename;
     const int maxCount;
-    inline FeatureDesc(const QString &filename, const int &maxCount)
+    const float detectionThreshold;
+    inline FeatureDesc(const QString &filename, const int maxCount, const float threshold)
         : filename(filename),
-          maxCount(maxCount)
+          maxCount(maxCount),
+          detectionThreshold(threshold)
     {}
 };
 
@@ -28,8 +30,9 @@ class Feature
 public:
     const QString _path; // for debug only
     cv::Mat img;
-    int maxCount; // 0 == inf
-    Feature(const cv::Mat &img, const int &maxCount, const QString &path="dynamic");
+    const int maxCount; // 0 == inf
+    const float detectionThreshold;
+    Feature(const cv::Mat &img, const int maxCount, const float threshold, const QString &path="dynamic");
     Feature(const FeatureDesc &td);
 };
 

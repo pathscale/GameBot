@@ -6,7 +6,6 @@
 #include <QRect>
 #include <QFile>
 #include <QDataStream>
-#include <QQuickItem>
 
 #include <opencv2/imgproc/imgproc.hpp>
 

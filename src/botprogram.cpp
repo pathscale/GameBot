@@ -2,6 +2,7 @@
 #include <functional>
 
 #include <QQmlEngine>
+#include <QQmlComponent>
 #include <QDebug>
 BotProgram::BotProgram(QObject *parent)
     : QObject(parent),
