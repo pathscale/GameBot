@@ -23,7 +23,7 @@ public:
     Q_INVOKABLE void loadUrl(const QUrl &url);
     ~BotProgram();
 signals:
-    void heatmapChanged(const QVariantList &dmg);
+    void heatmapChanged(const QList<QObject*> &dmg);
     void debugChanged(const QUrl &url);
 public slots:
     void onDebugChanged(const QString &filename);

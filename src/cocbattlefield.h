@@ -6,12 +6,36 @@
 #include <QRect>
 #include <QFile>
 #include <QDataStream>
+#include <QQuickItem>
 
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "resourcemanager.h"
 
 // Program logic. Only basic Qt types allowed (TODO)
+
+class Match {
+public:
+    QPoint pos;
+    float value; // if methods other than TM_CCORR_NORMED are ever used, value should be normalized to reflect accuracy and not raw match
+    Match(int x, int y, float value)
+        : pos(x, y), value(value)
+    {}
+    Match(const Match &m)
+        : pos(m.pos),
+          value(m.value)
+    {}
+};
+
+class FeatureMatch {
+public:
+    const Feature *ftr;
+    const Match match;
+    FeatureMatch(const Feature *ftr, const Match &match)
+        : ftr(ftr),
+          match(match)
+    {}
+};
 
 class BattlefieldSignals : public QObject
 {
@@ -30,7 +54,7 @@ class CocBattlefield
 
 public:
     CocBattlefield(const QString &filepath, ResourceManager *buildings, BattlefieldSignals *proxy=NULL);
-    const QVariantList analyze();
+    const std::list<FeatureMatch> analyze();
 
 protected:
     float find_scale();

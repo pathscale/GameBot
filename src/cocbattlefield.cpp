@@ -1,5 +1,8 @@
 #include "cocbattlefield.h"
 #include <QDebug>
+#include <QQmlEngine>
+#include <QQmlComponent>
+#include <QQuickItem>
 
 #include <functional>
 
@@ -29,15 +32,6 @@ static cv::Mat doMatch(cv::Mat img, cv::Mat templ, int match_method, float thres
 
     return result;
 }
-
-class Match {
-public:
-    QPoint pos;
-    float value; // if methods other than TM_CCORR_NORMED are ever used, value should be normalized to reflect accuracy and not raw match
-    Match(int x, int y, float value)
-        : pos(x, y), value(value)
-    {}
-};
 
 static Match FindBestMatch(const cv::Mat &img, const cv::Mat &templ, const int match_method)
 {
@@ -112,35 +106,27 @@ CocBattlefield::CocBattlefield(const QString &filepath, ResourceManager *buildin
     }
 }
 
-const QVariantList CocBattlefield::analyze() {
+const std::list<FeatureMatch> CocBattlefield::analyze() {
     this->buildings->setScale(this->find_scale());
-    // TODO: get rid of Qt containers in logic code and move to a UI building part
-    QVariantList boxen;
-
-    std::function<QVariant(const Match&, const Feature&)> to_QML =
-            [](const Match &m, const Feature &t) {
-        QVariant box(QRect(m.pos, QSize(t.img.size().width, t.img.size().height)));
-        return box;
-    };
-
-    for (const Feature *tmpl : buildings->getTemplates()) {
-        if (tmpl->maxCount == 1) {
-            const Match m = FindBestMatch(screen, tmpl->img, CV_TM_CCORR_NORMED);
+    std::list<FeatureMatch> feature_matches;
+    for (const Feature *feature : buildings->getTemplates()) {
+        if (feature->maxCount == 1) {
+            const Match m = FindBestMatch(screen, feature->img, CV_TM_CCORR_NORMED);
             if (m.value > 0) {
-                boxen.append(to_QML(m, *tmpl));
+                feature_matches.push_back(FeatureMatch(feature, m));
             } else {
-                qDebug() << "Not found" << tmpl->_path;
+                qDebug() << "Not found" << feature->_path;
             }
         } else {
             // FIXME: limited maxCount
-            const std::list<Match> matches = FindAllMatches(screen, tmpl->img, CV_TM_CCORR_NORMED);
-            qDebug() << "Found" << matches.size() << "of" << tmpl->_path;
+            const std::list<Match> matches = FindAllMatches(screen, feature->img, CV_TM_CCORR_NORMED);
+            qDebug() << "Found" << matches.size() << "of" << feature->_path;
             for (const Match &m : matches) {
-                boxen.append(to_QML(m, *tmpl));
+                feature_matches.push_back(FeatureMatch(feature, m));
             }
         }
     }
-    return boxen;
+    return feature_matches;
 }
 
 static float best_match(const cv::Mat &image, const cv::Mat &templ) {
