@@ -66,13 +66,20 @@ class ResourceManager
     FeatureMap features; // template owner
     double scale = 1;
     FeatureMap scaledFeatures;
+
 public:
     ResourceManager(const FeatureDescList &features);
     inline const Feature getImage(const QString &name) {
-        if (features.find(name) == features.end()) {
+        FeatureMap *f;
+        if (scale == 1) {
+            f = &features;
+        } else {
+            f = &scaledFeatures;
+        }
+        if (f->find(name) == f->end()) {
             qDebug() << "Requested template not found:" << name;
         }
-        return features.at(name);
+        return f->at(name);
     }
 
     void setScale(double scale);

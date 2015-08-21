@@ -16,7 +16,7 @@ typedef QPoint _P;
 const FeatureDescList cutouts {
 //    _T("TH9", "TH9.png", 1, 0.9), // different scale
     _T("TH10", "TH10.png", 1, _P(0, 0), 3, 0.9),
-    _T("FW0", "defense/fw0.png", 0, _P(0, 0), 3, 0.8),
+    _T("AD8", "defense/ad8.png", 0, _P(0, 0), 3, 0.8),
     _T("TR0", "props/TR0.png", 0, _P(0, 0), 2, 0.95),
     _T("SH0", "props/sh0.png", 0, _P(0, 0), 2, 0.95),
 };

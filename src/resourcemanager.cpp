@@ -38,9 +38,12 @@ ResourceManager::ResourceManager(const FeatureDescList &features)
 
 void ResourceManager::setScale(double scale) {
     if (scale == this->scale) {
-        qDebug() << "redundant scale() call";
+        qDebug() << "redundant scale() call (" << scale << ")";
     }
     this->scale = scale;
+    if (scale == 1) {
+        return;
+    }
     scaledFeatures.clear();
     for (const std::pair<const QString, const Feature&> &item : features) {
         cv::Mat scaled;
