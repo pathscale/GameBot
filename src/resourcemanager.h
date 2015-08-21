@@ -8,13 +8,15 @@
 
 class FeatureBase {
 public:
+    const QString humanName;
     const int maxCount;
     const QPoint anchor; // position of top corner of the tiles in screen pixels relative to top left corner of image
     const int tileWidth; // width in tiles
     const float detectionThreshold;
 protected:
-    inline FeatureBase(const int maxCount, const float threshold, const QPoint &anchor, const int tileWidth)
-        : maxCount(maxCount),
+    inline FeatureBase(const QString &humanName, const int maxCount, const float threshold, const QPoint &anchor, const int tileWidth)
+        : humanName(humanName),
+          maxCount(maxCount),
           detectionThreshold(threshold),
           anchor(anchor),
           tileWidth(tileWidth)
@@ -30,8 +32,8 @@ protected:
 class FeatureDesc : public FeatureBase {
 public:
     const QString filename;
-    inline FeatureDesc(const QString &filename, const int maxCount, const float threshold, const QPoint &anchor, const int tileWidth)
-        : FeatureBase(maxCount, threshold, anchor, tileWidth),
+    inline FeatureDesc(const QString &filename, const QString &humanName, const int maxCount, const float threshold, const QPoint &anchor, const int tileWidth)
+        : FeatureBase(humanName, maxCount, threshold, anchor, tileWidth),
           filename(filename)
     {}
 };
@@ -43,7 +45,7 @@ class Feature : public FeatureBase
 public:
     const QString _path; // for debug only
     cv::Mat img;
-    Feature(const cv::Mat &img, const int maxCount, const float threshold, const QPoint &anchor, const int tileWidth, const QString &path="dynamic");
+    Feature(const cv::Mat &img, const QString humanName, const int maxCount, const float threshold, const QPoint &anchor, const int tileWidth, const QString &path="dynamic");
     Feature(const FeatureDesc &td);
 };
 
