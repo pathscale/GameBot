@@ -2,8 +2,24 @@
 #define RESOURCEMANAGER_H
 
 #include <QString>
+#include <QPoint>
 #include <QDebug>
 #include <opencv2/imgproc/imgproc.hpp>
+
+class FeatureBase {
+public:
+    const int maxCount;
+    const QPoint anchor; // position of top corner of the tiles in screen pixels relative to top left corner of image
+    const int tileWidth; // width in tiles
+    const float detectionThreshold;
+protected:
+    inline FeatureBase(const int maxCount, const float threshold, const QPoint &anchor, const int tileWidth)
+        : maxCount(maxCount),
+          detectionThreshold(threshold),
+          anchor(anchor),
+          tileWidth(tileWidth)
+    {}
+};
 
 /* TemplData != Template because:
  * 1. data must be immutable
@@ -11,28 +27,23 @@
  * 3. if lazy loading is used, it will cut into time allocated for processing - unacceptable
  */
 
-class FeatureDesc {
+class FeatureDesc : public FeatureBase {
 public:
     const QString filename;
-    const int maxCount;
-    const float detectionThreshold;
-    inline FeatureDesc(const QString &filename, const int maxCount, const float threshold)
-        : filename(filename),
-          maxCount(maxCount),
-          detectionThreshold(threshold)
+    inline FeatureDesc(const QString &filename, const int maxCount, const float threshold, const QPoint &anchor, const int tileWidth)
+        : FeatureBase(maxCount, threshold, anchor, tileWidth),
+          filename(filename)
     {}
 };
 
 typedef std::list<std::pair<const QString, const FeatureDesc>> FeatureDescList; // TODO: std::pair should be const, but how to do it?
 
-class Feature
+class Feature : public FeatureBase
 {
 public:
     const QString _path; // for debug only
     cv::Mat img;
-    const int maxCount; // 0 == inf
-    const float detectionThreshold;
-    Feature(const cv::Mat &img, const int maxCount, const float threshold, const QString &path="dynamic");
+    Feature(const cv::Mat &img, const int maxCount, const float threshold, const QPoint &anchor, const int tileWidth, const QString &path="dynamic");
     Feature(const FeatureDesc &td);
 };
 

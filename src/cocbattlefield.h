@@ -2,6 +2,7 @@
 #define COCBATTLEFIELD_H
 
 #include <QObject>
+#include <QPoint>
 #include <QString>
 #include <QRect>
 #include <QFile>

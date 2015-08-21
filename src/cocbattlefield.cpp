@@ -32,7 +32,7 @@ static cv::Mat doMatch(cv::Mat img, cv::Mat templ, int match_method, float thres
 
 static Match FindBestMatch(const cv::Mat &img, const cv::Mat &templ, const int match_method)
 {
-    cv::Mat result = doMatch(img, templ, match_method);
+    cv::Mat result = doMatch(img, templ, match_method, 0);
 
     // Localize the best match with minMaxLoc
     double minVal, maxVal;
