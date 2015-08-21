@@ -4,8 +4,8 @@ Rectangle {
     property alias fit: label.text
     property int tiles
     property double scale
-    property alias xanchor: footprint.x
-    property alias yanchor: footprint.y
+    property alias xAnchor: footprint.x
+    property alias yAnchor: footprint.y
     id: matchArea
     border.width: 1
     border.color: "red"

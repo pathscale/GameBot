@@ -39,6 +39,8 @@ void BotProgram::loadUrl(const QUrl &url) {
         o->setProperty("fit", QString::number(m.value));
         o->setProperty("scale", scale);
         o->setProperty("tiles", f->tileWidth);
+        o->setProperty("xAnchor", f->anchor.x());
+        o->setProperty("yAnchor", f->anchor.y());
         boxen.append(o);
     }
 

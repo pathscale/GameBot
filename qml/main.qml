@@ -25,7 +25,9 @@ ApplicationWindow {
                                  "height": d.height,
                                  "fit": d.fit,
                                  "scale": d.scale,
-                                 "tiles": d.tiles};
+                                 "tiles": d.tiles,
+                                 "xAnchor": d.xAnchor,
+                                 "yAnchor": d.yAnchor};
                     var dynamicObject = component.createObject(mainForm.preview, props);
                     if (dynamicObject == null) {
                         console.log("error creating block");
