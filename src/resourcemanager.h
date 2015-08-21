@@ -83,6 +83,9 @@ public:
     }
 
     void setScale(double scale);
+    inline double getScale() {
+        return scale;
+    }
 
     // TODO: ideally, this should return an iterable
     const std::list<const Feature*> getTemplates();

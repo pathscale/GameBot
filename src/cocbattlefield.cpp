@@ -194,7 +194,7 @@ static float do_steps(const cv::Mat &image, const cv::Mat &templ, float minScale
 }
 
 // find scale relative to images in owned buildings list
-float CocBattlefield::find_scale() {
+double CocBattlefield::find_scale() {
     return 1; // FIXME: scale does more harm than good
     // default prop - TR0, found on most screenshots
     const cv::Mat probe = buildings->getImage("TR0").img;

@@ -18,7 +18,7 @@ void BotProgram::onDebugChanged(const QString &filename) {
 void BotProgram::loadUrl(const QUrl &url) {
     this->battlefield = new CocBattlefield(url.toLocalFile(), &buildings, &sigs);
     const std::list<FeatureMatch>f = this->battlefield->analyze();
-
+    const double scale = this->battlefield->getScale();
     QList<QObject*> boxen;
 
     for (const FeatureMatch &fm : f) {
@@ -28,11 +28,17 @@ void BotProgram::loadUrl(const QUrl &url) {
         QQmlComponent component(&engine,
                 QUrl(QStringLiteral("qrc:/MatchBox.qml")));
         QObject *o = component.create(); // data container compatible with QML that will expose all needed properties
+        if (component.status() != QQmlComponent::Ready) {
+            qDebug() << "MatchBox didn't load:" << component.status();
+            qDebug() << component.errors();
+        }
         o->setProperty("x", m.pos.x());
         o->setProperty("y", m.pos.y());
         o->setProperty("width", f->img.size().width);
         o->setProperty("height", f->img.size().height);
         o->setProperty("fit", QString::number(m.value));
+        o->setProperty("scale", scale);
+        o->setProperty("tiles", f->tileWidth);
         boxen.append(o);
     }
 

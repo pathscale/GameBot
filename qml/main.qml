@@ -19,11 +19,14 @@ ApplicationWindow {
                 var d = dmg[i];
                 var component = Qt.createComponent("MatchBox.qml");
                 if (component.status == Component.Ready) {
-                    var dynamicObject = component.createObject(mainForm.preview, {"x": d.x,
-                                                                                  "y": d.y,
-                                                                                  "width": d.width,
-                                                                                  "height": d.height,
-                                                                                  "fit": d.fit});
+                    var props = {"x": d.x,
+                                 "y": d.y,
+                                 "width": d.width,
+                                 "height": d.height,
+                                 "fit": d.fit,
+                                 "scale": d.scale,
+                                 "tiles": d.tiles};
+                    var dynamicObject = component.createObject(mainForm.preview, props);
                     if (dynamicObject == null) {
                         console.log("error creating block");
                         console.log(component.errorString());

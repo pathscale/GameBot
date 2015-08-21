@@ -2,6 +2,10 @@ import QtQuick 2.0
 
 Rectangle {
     property alias fit: label.text
+    property int tiles
+    property double scale
+    property alias xanchor: footprint.x
+    property alias yanchor: footprint.y
     id: matchArea
     border.width: 1
     border.color: "red"
@@ -15,6 +19,18 @@ Rectangle {
         id: mouseArea
         hoverEnabled: true
         anchors.fill: parent
+    }
+
+    Rectangle {
+        id: footprint
+        width: matchArea.tiles * 30 * matchArea.scale // 30 ~= tile side length when projected as square
+        height: matchArea.tiles * 30 * matchArea.scale
+        border.width: 1
+        border.color: "blue"
+        color: "transparent"
+        transformOrigin: Item.TopLeft
+        rotation: 45
+        transform: Scale { yScale: 0.75 }
     }
 
     states: State {

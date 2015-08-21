@@ -55,9 +55,12 @@ class CocBattlefield
 public:
     CocBattlefield(const QString &filepath, ResourceManager *buildings, BattlefieldSignals *proxy=NULL);
     const std::list<FeatureMatch> analyze();
-
+public:
+    inline double getScale() {
+        return buildings->getScale();
+    }
 protected:
-    float find_scale();
+    double find_scale();
 };
 
 #endif // COCBATTLEFIELD_H
