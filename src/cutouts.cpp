@@ -28,5 +28,6 @@ const FeatureDescList cutouts {
     _F("AD8",   "AirDefense8",  "defense/ad8.png",      0.8,    0, pos(17, -8),     3, Defense(1170, 10, 320, Defense::SINGLE, Defense::AIR)),
     _F("TR0",   "Tree",         "props/TR0.png",        0.95,   0, pos(20, -15),    2, Scenery()),
     _F("SH0",   "Shed",         "props/sh0.png",        0.95,   0, pos(20, -3),     2, Scenery()),
-    _F("G0-0",  "GoldStor0_10$","storage/gold0-0.png",  0.95,   0, pos(0, 0),       3, Storage(5, Storage::GOLD, 10)), // FIXME: health, offset
+    _F("G0-0",  "GoldStor0_10$","storage/gold0-0.png",  0.95,   0, pos(0, 0),       3, Storage(0, Storage::GOLD, 0)), // FIXME: health, offset, amount
+    _F("AH0",   "AirSweeper0",  "defense/ah0.png",      0.95,   0, pos(0, 0),       2, Defense(0, 0, 0, Defense::PUSH, Defense::AIR)), // FIXME
 };

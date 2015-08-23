@@ -56,7 +56,8 @@ class Defense : public Building {
 public:
     enum damage_type {
         SINGLE,
-        SPLASH1TILE
+        SPLASH1TILE,
+        PUSH
     };
 
     enum target_type {
