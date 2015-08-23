@@ -5,5 +5,6 @@
         <file>props/TR0.png</file>
         <file>TH10.png</file>
         <file>props/sh0.png</file>
+        <file>storage/gold0-0.png</file>
     </qresource>
 </RCC>

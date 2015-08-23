@@ -8,6 +8,7 @@ public:
         SCENERY,
         BUILDING,
         DEFENSE,
+        STORAGE
     };
     const enum feature_type type;
 protected:
@@ -34,6 +35,20 @@ protected:
 public:
     Building(const int hp)
         : Building(ObjectBase::BUILDING, hp)
+    {}
+};
+
+class Storage : public Building {
+public:
+    enum resource_type {
+        GOLD
+    };
+    const enum resource_type resource;
+    const int amount;
+    Storage(const int hp, const enum resource_type resource, const int amount)
+        : Building(ObjectBase::STORAGE, 0),
+          resource(resource),
+          amount(amount)
     {}
 };
 

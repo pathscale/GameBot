@@ -11,7 +11,7 @@
 // threshold - detection threshold
 // anchor - QPoint [alias pos] for pixel difference (top tile top corner - image top-left corner)
 // tiles - size in tiles (both dimensions assumed equal)
-// type - building type class
+// type - building type class, see objects.h
 #define _F(name, humanName, path, threshold, count, anchor, tiles, type) \
     std::pair<const QString, const FeatureDesc> \
         (name, \
@@ -24,8 +24,9 @@ typedef QPoint pos;
 
 const FeatureDescList cutouts {
 //    _F("TH9", "TH9.png", 1, 0.9), // different scale
-    _F("TH10",  "TownHall10",   "TH10.png",         0.9,    1, pos(25, 12),     4, Building(5500)),
-    _F("AD8",   "AirDefense8",  "defense/ad8.png",  0.8,    0, pos(17, -8),     3, Defense(1170, 10, 320, Defense::SINGLE, Defense::AIR)),
-    _F("TR0",   "Tree",         "props/TR0.png",    0.95,   0, pos(20, -15),    2, Scenery()),
-    _F("SH0",   "Shed",         "props/sh0.png",    0.95,   0, pos(20, -3),     2, Scenery()),
+    _F("TH10",  "TownHall10",   "TH10.png",             0.9,    1, pos(25, 12),     4, Building(5500)),
+    _F("AD8",   "AirDefense8",  "defense/ad8.png",      0.8,    0, pos(17, -8),     3, Defense(1170, 10, 320, Defense::SINGLE, Defense::AIR)),
+    _F("TR0",   "Tree",         "props/TR0.png",        0.95,   0, pos(20, -15),    2, Scenery()),
+    _F("SH0",   "Shed",         "props/sh0.png",        0.95,   0, pos(20, -3),     2, Scenery()),
+    _F("G0-0",  "GoldStor0_10$","storage/gold0-0.png",  0.95,   0, pos(0, 0),       3, Storage(5, Storage::GOLD, 10)), // FIXME: health, offset
 };
