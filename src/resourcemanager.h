@@ -1,6 +1,7 @@
 #ifndef RESOURCEMANAGER_H
 #define RESOURCEMANAGER_H
 
+#include "objects.h"
 #include <QString>
 #include <QPoint>
 #include <QDebug>
@@ -13,13 +14,15 @@ public:
     const QPoint anchor; // position of top corner of the tiles in screen pixels relative to top left corner of image
     const int tileWidth; // width in tiles
     const float detectionThreshold;
+    const ObjectBase type;
 protected:
-    inline FeatureBase(const QString &humanName, const int maxCount, const float threshold, const QPoint &anchor, const int tileWidth)
+    inline FeatureBase(const QString &humanName, const int maxCount, const float threshold, const QPoint &anchor, const int tileWidth, const ObjectBase &type)
         : humanName(humanName),
           maxCount(maxCount),
           detectionThreshold(threshold),
           anchor(anchor),
-          tileWidth(tileWidth)
+          tileWidth(tileWidth),
+          type(type)
     {}
 };
 
@@ -32,8 +35,8 @@ protected:
 class FeatureDesc : public FeatureBase {
 public:
     const QString filename;
-    inline FeatureDesc(const QString &filename, const QString &humanName, const int maxCount, const float threshold, const QPoint &anchor, const int tileWidth)
-        : FeatureBase(humanName, maxCount, threshold, anchor, tileWidth),
+    inline FeatureDesc(const QString &filename, const QString &humanName, const int maxCount, const float threshold, const QPoint &anchor, const int tileWidth, const ObjectBase &type)
+        : FeatureBase(humanName, maxCount, threshold, anchor, tileWidth, type),
           filename(filename)
     {}
 };
@@ -45,7 +48,7 @@ class Feature : public FeatureBase
 public:
     const QString _path; // for debug only
     cv::Mat img;
-    Feature(const cv::Mat &img, const QString humanName, const int maxCount, const float threshold, const QPoint &anchor, const int tileWidth, const QString &path="dynamic");
+    Feature(const cv::Mat &img, const QString humanName, const int maxCount, const float threshold, const QPoint &anchor, const int tileWidth, const ObjectBase &type, const QString &path="dynamic");
     Feature(const FeatureDesc &td);
 };
 

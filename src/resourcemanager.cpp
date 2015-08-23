@@ -22,14 +22,14 @@ static const cv::Mat load_qfile(const QString &path) {
                         1);
 }
 
-Feature::Feature(const cv::Mat &img, const QString humanName, const int maxCount, const float threshold, const QPoint &anchor, const int tileWidth, const QString &path)
-    : FeatureBase(humanName, maxCount, threshold, anchor, tileWidth),
+Feature::Feature(const cv::Mat &img, const QString humanName, const int maxCount, const float threshold, const QPoint &anchor, const int tileWidth, const ObjectBase &type, const QString &path)
+    : FeatureBase(humanName, maxCount, threshold, anchor, tileWidth, type),
       _path(path),
       img(img)
 {}
 
 Feature::Feature(const FeatureDesc &fd)
-    : Feature(load_qfile(fd.filename), fd.humanName, fd.maxCount, fd.detectionThreshold, fd.anchor, fd.tileWidth, fd.filename)
+    : Feature(load_qfile(fd.filename), fd.humanName, fd.maxCount, fd.detectionThreshold, fd.anchor, fd.tileWidth, fd.type, fd.filename)
 {}
 
 ResourceManager::ResourceManager(const FeatureDescList &features)
@@ -60,6 +60,7 @@ void ResourceManager::setScale(double scale) {
                                 item.second.detectionThreshold,
                                 item.second.anchor,
                                 item.second.tileWidth,
+                                item.second.type,
                                 item.second._path + "@" + QString::number(scale))));
     }
 }
