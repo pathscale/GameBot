@@ -34,7 +34,6 @@ typedef QPoint pos;
 // ALSO IMPORTANT: UI may not scale proportionally to map features, keep in separate FeatureList
 
 const FeatureDescList cutouts {
-//    _F("TH9", "TH9.png", 1, 0.9), // different scale
     _F("TH10",  "TownHall10",   _SINGLE("TH10.png",             pos(25, 12),    0.9),   1,  4, Building(5500)),
     _F("AD8",   "AirDefense8",  _SINGLE("defense/ad8.png",      pos(17, -8),    0.8),   0,  3, Defense(1170, 10, 320, Defense::SINGLE, Defense::AIR)),
     _F("TR0",   "Tree",         _SINGLE("props/TR0.png",        pos(20, -15),   0.95),  0,  2, Scenery()),
