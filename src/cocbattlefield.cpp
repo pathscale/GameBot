@@ -107,20 +107,29 @@ const std::list<FeatureMatch> CocBattlefield::analyze() {
     this->buildings->setScale(this->find_scale());
     std::list<FeatureMatch> feature_matches;
     for (const Feature *feature : buildings->getTemplates()) {
+        int found = 0;
         if (feature->maxCount == 1) {
-            const Match m = FindBestMatch(screen, feature->img, CV_TM_CCORR_NORMED);
-            if (m.value > 0) {
-                feature_matches.push_back(FeatureMatch(feature, m));
-            } else {
-                qDebug() << "Not found" << feature->_path;
+            for (const Sprite &sprite : feature->sprites) {
+                const Match m = FindBestMatch(screen, sprite.img, CV_TM_CCORR_NORMED);
+                if (m.value > 0) {
+                    feature_matches.push_back(FeatureMatch(feature, &sprite, m));
+                    found++;
+                }
+            }
+            if (!found) {
+                qDebug() << "Not found" << feature->humanName;
             }
         } else {
-            // FIXME: limited maxCount
-            const std::list<Match> matches = FindAllMatches(screen, feature->img, CV_TM_CCORR_NORMED);
-            qDebug() << "Found" << matches.size() << "of" << feature->_path;
-            for (const Match &m : matches) {
-                feature_matches.push_back(FeatureMatch(feature, m));
+            int found = 0;
+            for (const Sprite &sprite : feature->sprites) {
+                // FIXME: limited maxCount
+                const std::list<Match> matches = FindAllMatches(screen, sprite.img, CV_TM_CCORR_NORMED);
+                for (const Match &m : matches) {
+                    feature_matches.push_back(FeatureMatch(feature, &sprite, m));
+                }
+                found += matches.size();
             }
+            qDebug() << "Found" << found << "of" << feature->humanName;
         }
     }
     return feature_matches;
@@ -197,6 +206,6 @@ static float do_steps(const cv::Mat &image, const cv::Mat &templ, float minScale
 double CocBattlefield::find_scale() {
     return 1; // FIXME: scale does more harm than good
     // default prop - TR0, found on most screenshots
-    const cv::Mat probe = buildings->getImage("TR0").img;
+    const cv::Mat probe = buildings->getImage("TR0").sprites.front().img;
     return do_steps(screen, probe, 0.5, 2.0);
 }

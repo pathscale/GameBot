@@ -7,20 +7,43 @@
 #include <QDebug>
 #include <opencv2/imgproc/imgproc.hpp>
 
+class SpriteDesc {
+public:
+    const QString filename;
+    const QPoint anchor; // position of top corner of the tiles in screen pixels relative to top left corner of image
+    const float detectionThreshold;
+};
+
+typedef std::list<SpriteDesc> SpriteDescAlts;
+
+class Sprite;
+
+typedef std::list<Sprite> SpriteAlts;
+
+class Sprite {
+public:
+    const cv::Mat img;
+    const QPoint anchor; // position of top corner of the tiles in screen pixels relative to top left corner of image
+    const float detectionThreshold;
+    inline Sprite(const cv::Mat &img, const QPoint &anchor, const float threshold)
+        : img(img),
+          anchor(anchor),
+          detectionThreshold(threshold)
+    {}
+    static const SpriteAlts alts_from_descs(const SpriteDescAlts &descs);
+    static const SpriteAlts scale_alts(const SpriteAlts &sprites, double scale);
+};
+
 class FeatureBase {
 public:
     const QString humanName;
     const int maxCount;
-    const QPoint anchor; // position of top corner of the tiles in screen pixels relative to top left corner of image
     const int tileWidth; // width in tiles
-    const float detectionThreshold;
     const ObjectBase type;
 protected:
-    inline FeatureBase(const QString &humanName, const int maxCount, const float threshold, const QPoint &anchor, const int tileWidth, const ObjectBase &type)
+    inline FeatureBase(const QString &humanName, const int maxCount, const int tileWidth, const ObjectBase &type)
         : humanName(humanName),
           maxCount(maxCount),
-          detectionThreshold(threshold),
-          anchor(anchor),
           tileWidth(tileWidth),
           type(type)
     {}
@@ -34,10 +57,10 @@ protected:
 
 class FeatureDesc : public FeatureBase {
 public:
-    const QString filename;
-    inline FeatureDesc(const QString &filename, const QString &humanName, const int maxCount, const float threshold, const QPoint &anchor, const int tileWidth, const ObjectBase &type)
-        : FeatureBase(humanName, maxCount, threshold, anchor, tileWidth, type),
-          filename(filename)
+    const SpriteDescAlts sprites;
+    inline FeatureDesc(const SpriteDescAlts &sprites, const QString &humanName, const int maxCount, const int tileWidth, const ObjectBase &type)
+        : FeatureBase(humanName, maxCount, tileWidth, type),
+          sprites(sprites)
     {}
 };
 
@@ -46,10 +69,10 @@ typedef std::list<std::pair<const QString, const FeatureDesc>> FeatureDescList; 
 class Feature : public FeatureBase
 {
 public:
-    const QString _path; // for debug only
-    cv::Mat img;
-    Feature(const cv::Mat &img, const QString humanName, const int maxCount, const float threshold, const QPoint &anchor, const int tileWidth, const ObjectBase &type, const QString &path="dynamic");
+    const SpriteAlts sprites;
+    Feature(const SpriteAlts &sprites, const QString humanName, const int maxCount, const int tileWidth, const ObjectBase &type);
     Feature(const FeatureDesc &td);
+    Feature scaled(double scale) const;
 };
 
 typedef std::map<const QString, Feature> FeatureMap; // loaded object

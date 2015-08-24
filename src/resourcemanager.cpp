@@ -22,15 +22,43 @@ static const cv::Mat load_qfile(const QString &path) {
                         1);
 }
 
-Feature::Feature(const cv::Mat &img, const QString humanName, const int maxCount, const float threshold, const QPoint &anchor, const int tileWidth, const ObjectBase &type, const QString &path)
-    : FeatureBase(humanName, maxCount, threshold, anchor, tileWidth, type),
-      _path(path),
-      img(img)
+const std::list<Sprite> Sprite::alts_from_descs(const SpriteDescAlts &descs) {
+    std::list<Sprite> ret;
+    for (const SpriteDesc &desc : descs) {
+        ret.push_back(Sprite(load_qfile(desc.filename), desc.anchor, desc.detectionThreshold));
+    }
+    return ret;
+}
+
+const SpriteAlts Sprite::scale_alts(const SpriteAlts &sprites, double scale) {
+    SpriteAlts ret;
+    cv::Mat scaled;
+    for (const Sprite &sprite : sprites) {
+        const cv::Mat *templ = &sprite.img;
+        cv::Size s(round(templ->rows * scale), round(templ->cols * scale));
+        scaled.create(s, templ->type());
+        cv::resize(*templ, scaled, s, scale, scale);
+        ret.push_back(Sprite(*templ, sprite.anchor, sprite.detectionThreshold));
+    }
+    return ret;
+}
+
+Feature::Feature(const SpriteAlts &sprites, const QString humanName, const int maxCount, const int tileWidth, const ObjectBase &type)
+    : FeatureBase(humanName, maxCount, tileWidth, type),
+      sprites(sprites)
 {}
 
 Feature::Feature(const FeatureDesc &fd)
-    : Feature(load_qfile(fd.filename), fd.humanName, fd.maxCount, fd.detectionThreshold, fd.anchor, fd.tileWidth, fd.type, fd.filename)
+    : Feature(Sprite::alts_from_descs(fd.sprites), fd.humanName, fd.maxCount, fd.tileWidth, fd.type)
 {}
+
+Feature Feature::scaled(double scale) const {
+    return Feature(Sprite::scale_alts(sprites, scale),
+                   humanName,
+                   maxCount,
+                   tileWidth,
+                   type);
+}
 
 ResourceManager::ResourceManager(const FeatureDescList &features)
     : features(load_from_ftrs(features))
@@ -46,22 +74,10 @@ void ResourceManager::setScale(double scale) {
     }
     scaledFeatures.clear();
     for (const std::pair<const QString, const Feature&> &item : features) {
-        cv::Mat scaled;
-        const cv::Mat *templ = &item.second.img;
-        cv::Size s(round(templ->rows * scale), round(templ->cols * scale));
-        scaled.create(s, templ->type());
-        cv::resize(*templ, scaled, s, scale, scale);
         scaledFeatures.insert(
                     std::pair<const QString, const Feature>(
                         item.first,
-                        Feature(scaled,
-                                item.second.humanName,
-                                item.second.maxCount,
-                                item.second.detectionThreshold,
-                                item.second.anchor,
-                                item.second.tileWidth,
-                                item.second.type,
-                                item.second._path + "@" + QString::number(scale))));
+                        item.second.scaled(scale)));
     }
 }
 

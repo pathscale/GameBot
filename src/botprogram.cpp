@@ -23,6 +23,7 @@ void BotProgram::loadUrl(const QUrl &url) {
 
     for (const FeatureMatch &fm : f) {
         const Feature *f = fm.ftr;
+        const Sprite *s = fm.sprite;
         const Match &m = fm.match;
         QQmlEngine engine;
         QQmlComponent component(&engine,
@@ -34,13 +35,13 @@ void BotProgram::loadUrl(const QUrl &url) {
         }
         o->setProperty("x", m.pos.x());
         o->setProperty("y", m.pos.y());
-        o->setProperty("width", f->img.size().width);
-        o->setProperty("height", f->img.size().height);
+        o->setProperty("width", s->img.size().width);
+        o->setProperty("height", s->img.size().height);
         o->setProperty("fit", QString::number(m.value));
         o->setProperty("scale", scale);
         o->setProperty("tiles", f->tileWidth);
-        o->setProperty("xAnchor", f->anchor.x());
-        o->setProperty("yAnchor", f->anchor.y());
+        o->setProperty("xAnchor", s->anchor.x());
+        o->setProperty("yAnchor", s->anchor.y());
         boxen.append(o);
     }
 

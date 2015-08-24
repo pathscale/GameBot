@@ -16,8 +16,8 @@
 
 class Match {
 public:
-    QPoint pos;
-    float value; // if methods other than TM_CCORR_NORMED are ever used, value should be normalized to reflect accuracy and not raw match
+    const QPoint pos;
+    const float value; // if methods other than TM_CCORR_NORMED are ever used, value should be normalized to reflect accuracy and not raw match
     Match(int x, int y, float value)
         : pos(x, y), value(value)
     {}
@@ -30,9 +30,11 @@ public:
 class FeatureMatch {
 public:
     const Feature *ftr;
+    const Sprite *sprite;
     const Match match;
-    FeatureMatch(const Feature *ftr, const Match &match)
+    FeatureMatch(const Feature *ftr, const Sprite *sprite, const Match &match)
         : ftr(ftr),
+          sprite(sprite),
           match(match)
     {}
 };
