@@ -23,10 +23,17 @@ add_executable(levelme_coc WIN32
 	src/cutouts.cpp
 	${LEVELME_COC_RESOURCES})
 
-target_link_libraries(levelme_coc
+set(my_opencv_libs
 	opencv_core
 	opencv_highgui
-	opencv_imgproc
+	opencv_imgproc)
+if (TARGET opencv_imgcodecs) # opencv 3.0+
+	list(APPEND my_opencv_libs
+		opencv_imgcodecs)
+endif()
+
+target_link_libraries(levelme_coc
+	${my_opencv_libs}
 	Qt5::Qml
 	Qt5::Quick
 	Qt5::Widgets)
