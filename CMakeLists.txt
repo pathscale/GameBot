@@ -26,11 +26,8 @@ add_executable(levelme_coc WIN32
 set(my_opencv_libs
 	opencv_core
 	opencv_highgui
-	opencv_imgproc)
-if (TARGET opencv_imgcodecs) # opencv 3.0+
-	list(APPEND my_opencv_libs
-		opencv_imgcodecs)
-endif()
+        opencv_imgproc
+        opencv_imgcodecs)
 
 target_link_libraries(levelme_coc
 	${my_opencv_libs}
