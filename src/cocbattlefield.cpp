@@ -10,19 +10,18 @@ BattlefieldSignals::BattlefieldSignals(QObject *parent) : QObject(parent)
 
 // image matching
 
-static cv::Mat doMatch(cv::Mat img, cv::Mat templ, int match_method, float threshold=0.9)
+static cv::Mat doMatch(const cv::Mat &img, const MatchTemplate &templ, int match_method, float threshold=0.9)
 {
     cv::Mat result;
-
     // Create the result matrix
-    int result_cols =  img.cols - templ.cols + 1;
-    int result_rows = img.rows - templ.rows + 1;
+    int result_cols =  img.cols - templ.image.cols + 1;
+    int result_rows = img.rows - templ.image.rows + 1;
 
     result.create( result_cols, result_rows, CV_32FC1 );
 
     // Do the Matching and Normalize
     //  Method = 0: CV_TM_SQDIFF, 1: CV_TM_SQDIFF_NORMED 2: CV_TM_CCORR 3: CV_TM_CCORR_NORMED 4: CV_TM_CCOEFF 5: CV_TM_CCOEFF_NORMED
-    cv::matchTemplate(img, templ, result, match_method);
+    cv::matchTemplate(img, templ.image, result, match_method, templ.mask);
     if (threshold != 0) {
         cv::threshold(result, result, threshold, 1.0, CV_THRESH_TOZERO);
     }
@@ -30,9 +29,9 @@ static cv::Mat doMatch(cv::Mat img, cv::Mat templ, int match_method, float thres
     return result;
 }
 
-static Match FindBestMatch(const cv::Mat &img, const cv::Mat &templ, const int match_method)
+static Match FindBestMatch(const cv::Mat &img, const MatchTemplate &templ, const int match_method)
 {
-    cv::Mat result = doMatch(img, templ, match_method, 0);
+    const cv::Mat result = doMatch(img, templ, match_method, 0);
 
     // Localize the best match with minMaxLoc
     double minVal, maxVal;
@@ -53,7 +52,7 @@ static Match FindBestMatch(const cv::Mat &img, const cv::Mat &templ, const int m
     return Match(x, y, matchVal);
 }
 
-static std::list<Match> FindAllMatches(const cv::Mat &img, const cv::Mat &templ, int match_method, double threshold=0.95)
+static std::list<Match> FindAllMatches(const cv::Mat &img, const MatchTemplate &templ, int match_method, double threshold=0.95)
 {
     cv::Mat result = doMatch(img, templ, match_method); // FIXME for performance - make method of some object with lifetime linked to BattleField, overallocate and reuse
 
@@ -110,7 +109,7 @@ const std::list<FeatureMatch> CocBattlefield::analyze() {
         int found = 0;
         if (feature->maxCount == 1) {
             for (const Sprite &sprite : feature->sprites) {
-                const Match m = FindBestMatch(screen, sprite.img, CV_TM_CCORR_NORMED);
+                const Match m = FindBestMatch(screen, MatchTemplate(sprite.img, sprite.mask), CV_TM_CCORR_NORMED);
                 if (m.value > 0) {
                     feature_matches.push_back(FeatureMatch(feature, &sprite, m));
                     found++;
@@ -123,7 +122,7 @@ const std::list<FeatureMatch> CocBattlefield::analyze() {
             int found = 0;
             for (const Sprite &sprite : feature->sprites) {
                 // FIXME: limited maxCount
-                const std::list<Match> matches = FindAllMatches(screen, sprite.img, CV_TM_CCORR_NORMED);
+                const std::list<Match> matches = FindAllMatches(screen, MatchTemplate(sprite.img, sprite.mask), CV_TM_CCORR_NORMED);
                 for (const Match &m : matches) {
                     feature_matches.push_back(FeatureMatch(feature, &sprite, m));
                 }
@@ -135,13 +134,13 @@ const std::list<FeatureMatch> CocBattlefield::analyze() {
     return feature_matches;
 }
 
-static float best_match(const cv::Mat &image, const cv::Mat &templ) {
+static float best_match(const cv::Mat &image, const MatchTemplate &templ) {
     return FindBestMatch(image, templ, CV_TM_CCORR_NORMED).value;
 }
 
 
 // XXX: store likely scales (resolution-based) and match against them opportunistically?
-static float do_steps(const cv::Mat &image, const cv::Mat &templ, float minScale, float maxScale, double stepSize = 1.1, float threshold = 0.96, float max_precision = 0.002) { // speed: some stepSize values will be better than others
+static float do_steps(const cv::Mat &image, const MatchTemplate &templ, float minScale, float maxScale, double stepSize = 1.1, float threshold = 0.96, float max_precision = 0.002) { // speed: some stepSize values will be better than others
     qDebug() << "steps" << minScale << "to" << maxScale << "by" << stepSize;
     if (maxScale - minScale < max_precision || stepSize < max_precision + 1) { // recursion stop condition
         qDebug() << "Scale not found";
@@ -157,14 +156,20 @@ static float do_steps(const cv::Mat &image, const cv::Mat &templ, float minScale
     float maxValue = 0;
     unsigned int maxIdx = 0;
     unsigned int i = 0;
+    bool masked = templ.mask.empty();
     cv::Mat scaled;
+    cv::Mat scaledMask;
     for (double curScale = minScale;
          curScale <= maxScale; curScale *= stepSize, i++) {
-        cv::Size s(round(templ.rows * curScale), round(templ.cols * curScale));
-        scaled.create(s, templ.type());
-        cv::resize(templ, scaled, s, curScale, curScale);
+        cv::Size s(round(templ.image.rows * curScale), round(templ.image.cols * curScale));
+        scaled.create(s, templ.image.type());
+        cv::resize(templ.image, scaled, s, curScale, curScale);
 
-        const float curValue = best_match(image, scaled);
+        if (masked) {
+            scaledMask.create(s, templ.mask.type());
+            cv::resize(templ.mask, scaledMask, s, curScale, curScale);
+        }
+        const float curValue = best_match(image, MatchTemplate(scaled, scaledMask));
         qDebug() << "@" << curScale << curValue;
         results.push_back({curScale, curValue});
         if (curValue > maxValue) {
@@ -206,6 +211,6 @@ static float do_steps(const cv::Mat &image, const cv::Mat &templ, float minScale
 double CocBattlefield::find_scale() {
     return 1; // FIXME: scale does more harm than good
     // default prop - TR0, found on most screenshots
-    const cv::Mat probe = buildings->getImage("TR0").sprites.front().img;
+    const MatchTemplate probe = buildings->getImage("TR0").sprites.front().get_template();
     return do_steps(screen, probe, 0.5, 2.0);
 }

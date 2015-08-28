@@ -16,20 +16,36 @@ public:
 
 typedef std::list<SpriteDesc> SpriteDescAlts;
 
+class MatchTemplate {
+public:
+    const cv::Mat &image;
+    const cv::Mat &mask;
+    inline MatchTemplate(const cv::Mat &image, const cv::Mat mask)
+        : image(image),
+          mask(mask)
+    {}
+};
+
 class Sprite;
 
 typedef std::list<Sprite> SpriteAlts;
 
 class Sprite {
 public:
-    const cv::Mat img;
+    const cv::Mat img; // image to match (RGB)
+    const cv::Mat mask; // mask to pass to cv::templateMatch (RGB) (XXX: what values?)
     const QPoint anchor; // position of top corner of the tiles in screen pixels relative to top left corner of image
     const float detectionThreshold;
-    inline Sprite(const cv::Mat &img, const QPoint &anchor, const float threshold)
+    inline Sprite(const cv::Mat &img, const cv::Mat &mask, const QPoint &anchor, const float threshold)
         : img(img),
+          mask(mask),
           anchor(anchor),
           detectionThreshold(threshold)
     {}
+    inline const MatchTemplate get_template() const {
+        return MatchTemplate(img, mask);
+    }
+
     static const SpriteAlts alts_from_descs(const SpriteDescAlts &descs);
     static const SpriteAlts scale_alts(const SpriteAlts &sprites, double scale);
 };

@@ -7,25 +7,49 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QJsonArray>
-#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgcodecs.hpp>
 
-static const cv::Mat load_qfile(const QString &path) {
+struct image_with_mask {
+    cv::Mat image;
+    cv::Mat mask;
+};
+
+static const struct image_with_mask load_qfile(const QString &path) {
     QFile f(path);
     if (!f.open(QIODevice::ReadOnly)) {
         qDebug() << "Image not present at" << path;
-        return cv::Mat();
+        return {cv::Mat(), cv::Mat()};
     }
     QByteArray bytes = f.readAll();
-    return cv::imdecode(cv::InputArray(
-                            std::vector<char>(bytes.constData(),
-                                              bytes.constData() + bytes.size())),
-                        1);
+    const cv::Mat raw_image = cv::imdecode(cv::InputArray(std::vector<char>(bytes.constData(),
+                                                          bytes.constData() + bytes.size())),
+                                           cv::IMREAD_UNCHANGED);
+    cv::Mat rgb;
+    cv::Mat alpha;
+    int channels = raw_image.channels();
+    if (channels == 3) {
+        rgb = cv::Mat(raw_image);
+    } else if (channels != 4) {
+        qDebug() << "Image has wrong number of channels: " << channels << path;
+    } else { // 4 channels
+        // allocate matrices for split channels
+        cv::Size dims = raw_image.size();
+        rgb.create(dims, CV_MAKETYPE(raw_image.depth(), 3));
+        alpha.create(dims, CV_MAKETYPE(raw_image.depth(), 3));
+        cv::Mat out[] = {rgb, alpha};
+        // copy subchannels in one call
+        // r->r, g->g, b->b, a->Rmask, a->Gmask, a->Bmask
+        int from_to[] = {0,0, 1,1, 2,2, 3,3, 3,4, 3,5};
+        cv::mixChannels(&raw_image, 1, out, 2, from_to, 6);
+    }
+    return {rgb, alpha};
 }
 
 const std::list<Sprite> Sprite::alts_from_descs(const SpriteDescAlts &descs) {
     std::list<Sprite> ret;
     for (const SpriteDesc &desc : descs) {
-        ret.push_back(Sprite(load_qfile(desc.filename), desc.anchor, desc.detectionThreshold));
+        const struct image_with_mask im = load_qfile(desc.filename);
+        ret.push_back(Sprite(im.image, im.mask, desc.anchor, desc.detectionThreshold));
     }
     return ret;
 }
@@ -33,12 +57,21 @@ const std::list<Sprite> Sprite::alts_from_descs(const SpriteDescAlts &descs) {
 const SpriteAlts Sprite::scale_alts(const SpriteAlts &sprites, double scale) {
     SpriteAlts ret;
     cv::Mat scaled;
+    cv::Mat scaledMask;
     for (const Sprite &sprite : sprites) {
         const cv::Mat *templ = &sprite.img;
-        cv::Size s(round(templ->rows * scale), round(templ->cols * scale));
-        scaled.create(s, templ->type());
-        cv::resize(*templ, scaled, s, scale, scale);
-        ret.push_back(Sprite(*templ, sprite.anchor, sprite.detectionThreshold));
+        const cv::Size dims(round(templ->rows * scale), round(templ->cols * scale));
+        scaled.create(dims, templ->type());
+        cv::resize(*templ, scaled, dims, scale, scale);
+        const cv::Mat *outMask;
+        if (sprite.mask.empty()) {
+            outMask = &sprite.mask;
+        } else {
+            scaledMask.create(dims, sprite.mask.type());
+            cv::resize(sprite.mask, scaledMask, dims, scale, scale);
+            outMask = &scaledMask;
+        }
+        ret.push_back(Sprite(scaled, *outMask, sprite.anchor, sprite.detectionThreshold));
     }
     return ret;
 }
