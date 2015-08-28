@@ -32,6 +32,7 @@ typedef QPoint pos;
 
 // VERY IMPORTANT: all images must be cut out from the same scale; currently 1920x1200 default zoom
 // ALSO IMPORTANT: UI may not scale proportionally to map features, keep in separate FeatureList
+// Make sure the images are regular RGB(A) with 8-bit depth
 
 const FeatureDescList cutouts {
     _F("TH10",  "TownHall10",   _SINGLE("TH10.png",             pos(25, 12),    0.9),   1,  4, Building(5500)),

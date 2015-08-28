@@ -41,6 +41,14 @@ static const struct image_with_mask load_qfile(const QString &path) {
         // r->r, g->g, b->b, a->Rmask, a->Gmask, a->Bmask
         int from_to[] = {0,0, 1,1, 2,2, 3,3, 3,4, 3,5};
         cv::mixChannels(&raw_image, 1, out, 2, from_to, 6);
+
+        // RGB extracted, check if alpha makes sense
+        cv::Mat tmpa;
+        cv::extractChannel(raw_image, tmpa, 3);
+        if (cv::checkRange(tmpa, true, 0, 255, 255.1)) { // XXX: not very reliable if image isn't UINT8, but unlikely those will be used
+            // alpha channel full of 255, erase
+            alpha = cv::Mat();
+        }
     }
     return {rgb, alpha};
 }
