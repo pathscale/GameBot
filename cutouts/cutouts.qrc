@@ -18,5 +18,9 @@
         <file>defense/xb4_1.png</file>
         <file>defense/it3.png</file>
         <file>army/ac8.png</file>
+        <file>army/df3.png</file>
+        <file>army/la8.png</file>
+        <file>storage/ec12.png</file>
+        <file>storage/dd6.png</file>
     </qresource>
 </RCC>

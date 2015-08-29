@@ -42,6 +42,8 @@ const FeatureDescList cutouts {
     _F("SH0",   "Shed",          _SINGLE("props/sh0.png",        pos(20, -3),    0.95),  0,  2, Scenery()),
 
     _F("AC8",   "ArmyCamp8",     _SINGLE("army/ac8.png",         pos(0, 0),      0.95),  0,  5, Building(0)),
+    _F("DF3",   "DarkFactory3",  _SINGLE("army/df3.png",         pos(0, 0),      0.95),  0,  3, Building(0)),
+    _F("LA8",   "Laboratory8",   _SINGLE("army/la8.png",         pos(0, 0),      0.95),  0,  4, Building(0)),
 
     _F("AD8",   "AirDefense8",   _SINGLE("defense/ad8_m.png",    pos(0, 0),      0.8),   0,  3, Defense(1170, 10, 320, Defense::SINGLE, Defense::AIR)), // alpha mask
     _F("AS4",   "AirSweeper4",   _SINGLE("defense/as4.png",      pos(0, 0),      0.95),  0,  2, Defense(0, 15, 0, Defense::PUSH, Defense::AIR)), // It can be rotated 45 degrees at a time, and hence has 8 directional settings. The Air Sweeper attacks in a rectangular area of effect of width 5 tiles and length 14. (http://clashofclans.wikia.com/wiki/Air_Sweeper)
@@ -54,6 +56,8 @@ const FeatureDescList cutouts {
                                      _I("defense/xb4_1.png",     pos(0, 0),      0.97)}),0,  3, Defense(0, 11, 0, Defense::SINGLE, Defense::AIR | Defense::GROUND)), // FIXME: also Range=14, AIR, depending on setting
     _F("IT3",   "Inferno3",      _SINGLE("defense/it3.png",      pos(0, 0),      0.95),  0,  3, Defense(0, 9, 0, Defense::SINGLE, Defense::AIR | Defense::GROUND)),
 
+    _F("EC12",  "ElixirColl12",  _SINGLE("storage/ec12.png",     pos(0, 0),      0.95),  0,  3, Building(0)),
+    _F("DD6",   "DarkDrill6",    _SINGLE("storage/dd6.png",      pos(0, 0),      0.97),  0,  3, Building(0)),
     _F("GS11-0","GoldStor11_0",  _SINGLE("storage/gold11-0.png", pos(0, 0),      0.95),  0,  3, Storage(0, Storage::GOLD, 0)), // FIXME: health, offset, amount
     _F("DS6-0", "DarkStor6_0",   _SINGLE("storage/ds6-0.png",    pos(0, 0),      0.95),  0,  3, Storage(0, Storage::DARK, 0)), // FIXME: health, offset, amount
     _F("ES11-0","ElixirStor11_0",_SINGLE("storage/es11-0.png",   pos(0, 0),      0.95),  0,  3, Storage(0, Storage::ELIXIR, 0)), // FIXME: health, offset, amount
