@@ -80,4 +80,17 @@ public:
     {}
 };
 
+/* TODO: some buildings need special subclassifiers which can match specific images to special properties:
+ * * air sweeper position
+ * * storage fill level
+ *
+ * Benefits:
+ * * faster processing (no need to process the whole picture to get details)
+ * Requirements:
+ * * classifiers need to be rescaled with the rest of images
+ * * classifiers are second processing step
+ *
+ * OR matches need to be converted to object-based classifiers before use.
+ */
+
 #endif // OBJECTS_H

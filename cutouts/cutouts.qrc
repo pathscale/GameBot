@@ -4,7 +4,6 @@
         <file>props/TR0.png</file>
         <file>TH10.png</file>
         <file>props/sh0.png</file>
-        <file>defense/ah0.png</file>
         <file>defense/ad8_m.png</file>
         <file>defense/ca13_1.png</file>
         <file>defense/ca13.png</file>
@@ -12,5 +11,7 @@
         <file>storage/gold11-0.png</file>
         <file>storage/ds6-0.png</file>
         <file>storage/es11-0.png</file>
+        <file>defense/as4.png</file>
+        <file>defense/at13.png</file>
     </qresource>
 </RCC>
