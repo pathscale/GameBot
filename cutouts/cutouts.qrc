@@ -6,8 +6,8 @@
         <file>props/sh0.png</file>
         <file>storage/gold0-0.png</file>
         <file>defense/ah0.png</file>
-        <file>defense/ca0.png</file>
-        <file>defense/ca0_1.png</file>
         <file>defense/ad8_m.png</file>
+        <file>defense/ca13_1.png</file>
+        <file>defense/ca13.png</file>
     </qresource>
 </RCC>
