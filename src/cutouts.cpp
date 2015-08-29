@@ -37,6 +37,7 @@ typedef QPoint pos;
 const FeatureDescList cutouts {
     _F("TH10",  "TownHall10",    _SINGLE("TH10.png",             pos(25, 12),    0.9),   1,  4, Building(5500)),
     //_F("AD8",   "AirDefense8",  _SINGLE("defense/ad8.png",      pos(17, -8),    0.8),   0,  3, Defense(1170, 10, 320, Defense::SINGLE, Defense::AIR)),
+    _F("CC6",   "ClanCastle6",   _SINGLE("cc6.png",              pos(0, 0),      0.9),   1,  3, Building(0)),
 
     _F("TR0",   "Tree",          _SINGLE("props/TR0.png",        pos(20, -15),   0.95),  0,  2, Scenery()),
     _F("SH0",   "Shed",          _SINGLE("props/sh0.png",        pos(20, -3),    0.95),  0,  2, Scenery()),

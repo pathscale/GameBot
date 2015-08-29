@@ -27,5 +27,6 @@
         <file>army/bk.png</file>
         <file>army/aq.png</file>
         <file>army/db6.png</file>
+        <file>cc6.png</file>
     </qresource>
 </RCC>
