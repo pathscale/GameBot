@@ -122,7 +122,7 @@ const std::list<FeatureMatch> CocBattlefield::analyze() {
             int found = 0;
             for (const Sprite &sprite : feature->sprites) {
                 // FIXME: limited maxCount
-                const std::list<Match> matches = FindAllMatches(screen, MatchTemplate(sprite.img, sprite.mask), CV_TM_CCORR_NORMED);
+                const std::list<Match> matches = FindAllMatches(screen, MatchTemplate(sprite.img, sprite.mask), CV_TM_CCORR_NORMED, sprite.detectionThreshold);
                 for (const Match &m : matches) {
                     feature_matches.push_back(FeatureMatch(feature, &sprite, m));
                 }

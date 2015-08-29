@@ -14,5 +14,7 @@
         <file>defense/as4.png</file>
         <file>defense/at13.png</file>
         <file>defense/mo8.png</file>
+        <file>defense/xb4.png</file>
+        <file>defense/xb4_1.png</file>
     </qresource>
 </RCC>
