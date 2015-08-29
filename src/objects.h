@@ -43,6 +43,7 @@ public:
     enum resource_type {
         GOLD,
         DARK,
+        ELIXIR,
     };
     const enum resource_type resource;
     const int amount;
