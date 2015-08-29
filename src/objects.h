@@ -41,7 +41,8 @@ public:
 class Storage : public Building {
 public:
     enum resource_type {
-        GOLD
+        GOLD,
+        DARK,
     };
     const enum resource_type resource;
     const int amount;
