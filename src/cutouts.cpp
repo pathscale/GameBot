@@ -45,6 +45,10 @@ const FeatureDescList cutouts {
     _F("DF3",   "DarkFactory3",  _SINGLE("army/df3.png",         pos(0, 0),      0.95),  0,  3, Building(0)),
     _F("LA8",   "Laboratory8",   _SINGLE("army/la8.png",         pos(0, 0),      0.95),  0,  4, Building(0)),
     _F("BA10",  "Barracks10",    _SINGLE("army/ba10.png",        pos(0, 0),      0.95),  0,  3, Building(0)),
+    _F("DB6",   "DarkBarracks6", _SINGLE("army/db6.png",         pos(0, 0),      0.95),  0,  3, Building(0)),
+
+    _F("BK",    "BKingLair",     _SINGLE("army/bk.png",          pos(0, 0),      0.95),  1,  3, Building(0)), // Special: has range
+    _F("AQ",    "ArcherQueen",   _SINGLE("army/aq.png",          pos(0, 0),      0.95),  1,  3, Building(0)), // Special: has range
 
     _F("AD8",   "AirDefense8",   _SINGLE("defense/ad8_m.png",    pos(0, 0),      0.8),   0,  3, Defense(1170, 10, 320, Defense::SINGLE, Defense::AIR)), // alpha mask
     _F("AS4",   "AirSweeper4",   _SINGLE("defense/as4.png",      pos(0, 0),      0.95),  0,  2, Defense(0, 15, 0, Defense::PUSH, Defense::AIR)), // It can be rotated 45 degrees at a time, and hence has 8 directional settings. The Air Sweeper attacks in a rectangular area of effect of width 5 tiles and length 14. (http://clashofclans.wikia.com/wiki/Air_Sweeper)

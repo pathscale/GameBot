@@ -24,5 +24,8 @@
         <file>storage/dd6.png</file>
         <file>army/ba10.png</file>
         <file>storage/gm12.png</file>
+        <file>army/bk.png</file>
+        <file>army/aq.png</file>
+        <file>army/db6.png</file>
     </qresource>
 </RCC>
