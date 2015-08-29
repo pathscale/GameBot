@@ -59,6 +59,7 @@ public:
     enum damage_type {
         SINGLE,
         SPLASH1TILE,
+        SPLASH15TILE, // 1.5 tile
         PUSH
     };
 
