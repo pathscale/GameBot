@@ -40,8 +40,9 @@ const FeatureDescList cutouts {
     _F("AD8",   "AirDefense8",  _SINGLE("defense/ad8_m.png",    pos(0, 0),      0.8),   0,  3, Defense(1170, 10, 320, Defense::SINGLE, Defense::AIR)), // alpha mask
     _F("TR0",   "Tree",         _SINGLE("props/TR0.png",        pos(20, -15),   0.95),  0,  2, Scenery()),
     _F("SH0",   "Shed",         _SINGLE("props/sh0.png",        pos(20, -3),    0.95),  0,  2, Scenery()),
-    _F("G0-0",  "GoldStor0_10$",_SINGLE("storage/gold0-0.png",  pos(0, 0),      0.95),  0,  3, Storage(0, Storage::GOLD, 0)), // FIXME: health, offset, amount
+    _F("GS11-0","GoldStor11_0$",_SINGLE("storage/gold11-0.png", pos(0, 0),      0.95),  0,  3, Storage(0, Storage::GOLD, 0)), // FIXME: health, offset, amount
     _F("AH0",   "AirSweeper0",  _SINGLE("defense/ah0.png",      pos(0, 0),      0.95),  0,  2, Defense(0, 0, 0, Defense::PUSH, Defense::AIR)), // FIXME
     _F("CA13",  "Cannon13",     _S({_I("defense/ca13.png",      pos(0, 0),      0.95),
                                     _I("defense/ca13_1.png",    pos(0, 0),      0.95)}),0,  3, Defense(0, 9, 0, Defense::SINGLE, Defense::GROUND)),
+    _F("WT8",   "Wizard8",      _SINGLE("defense/wt8.png",      pos(0, 0),      0.95),  0,  3, Defense(0, 7, 0, Defense::SPLASH1TILE, Defense::AIR | Defense::GROUND)),
 };

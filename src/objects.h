@@ -68,8 +68,8 @@ public:
     const int range;
     const float dps; // damage per second
     const enum damage_type damageType;
-    const enum target_type targets;
-    Defense(const int hp, const int range, const float dps, const enum damage_type damageType, const enum target_type targets)
+    const unsigned targets;
+    Defense(const int hp, const int range, const float dps, const enum damage_type damageType, const unsigned targets)
         : Building(ObjectBase::DEFENSE, hp),
           range(range),
           dps(dps),
