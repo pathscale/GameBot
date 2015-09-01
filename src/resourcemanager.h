@@ -7,6 +7,13 @@
 #include <QDebug>
 #include <opencv2/imgproc/imgproc.hpp>
 
+struct image_with_mask {
+    cv::Mat image;
+    cv::Mat mask;
+};
+
+const struct image_with_mask load_cutout(const QString &path);
+
 class SpriteDesc {
 public:
     const QString filename;

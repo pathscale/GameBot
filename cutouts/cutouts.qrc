@@ -28,5 +28,6 @@
         <file>army/aq.png</file>
         <file>army/db6.png</file>
         <file>cc6.png</file>
+        <file>grid/left.png</file>
     </qresource>
 </RCC>

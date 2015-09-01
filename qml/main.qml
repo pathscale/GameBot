@@ -14,7 +14,7 @@ ApplicationWindow {
     CocBot {
         id: bot
         onHeatmapChanged: {
-            console.log("heatmap changed");
+            console.log("heatmap changed (FIXME: destroy objects)");
             for (var i = 0; i < dmg.length; i++) {
                 var d = dmg[i];
                 var component = Qt.createComponent("MatchBox.qml");
@@ -40,6 +40,9 @@ ApplicationWindow {
                     return
                 }
             }
+            mainForm.preview.grabToImage(function(result) {
+                                      result.saveToFile("something.png");
+            });
         }
         onDebugChanged: {
             console.log("debug changed:" + url);

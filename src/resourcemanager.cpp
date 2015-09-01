@@ -9,12 +9,7 @@
 #include <QJsonArray>
 #include <opencv2/imgcodecs.hpp>
 
-struct image_with_mask {
-    cv::Mat image;
-    cv::Mat mask;
-};
-
-static const struct image_with_mask load_qfile(const QString &path) {
+const struct image_with_mask load_cutout(const QString &path) {
     QFile f(path);
     if (!f.open(QIODevice::ReadOnly)) {
         qDebug() << "Image not present at" << path;
@@ -30,7 +25,8 @@ static const struct image_with_mask load_qfile(const QString &path) {
     if (channels == 3) {
         rgb = cv::Mat(raw_image);
     } else if (channels != 4) {
-        qDebug() << "Image has wrong number of channels: " << channels << path;
+        qDebug() << "Image has uncommon channel count: " << channels << path;
+        rgb = cv::Mat(raw_image);
     } else { // 4 channels
         // allocate matrices for split channels
         cv::Size dims = raw_image.size();
@@ -56,7 +52,7 @@ static const struct image_with_mask load_qfile(const QString &path) {
 const std::list<Sprite> Sprite::alts_from_descs(const SpriteDescAlts &descs) {
     std::list<Sprite> ret;
     for (const SpriteDesc &desc : descs) {
-        const struct image_with_mask im = load_qfile(desc.filename);
+        const struct image_with_mask im = load_cutout(desc.filename);
         ret.push_back(Sprite(im.image, im.mask, desc.anchor, desc.detectionThreshold));
     }
     return ret;

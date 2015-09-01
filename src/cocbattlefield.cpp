@@ -5,6 +5,7 @@
 
 #include <opencv2/highgui/highgui.hpp>
 
+
 BattlefieldSignals::BattlefieldSignals(QObject *parent) : QObject(parent)
 {}
 
@@ -102,7 +103,39 @@ CocBattlefield::CocBattlefield(const QString &filepath, ResourceManager *buildin
     }
 }
 
+CocBattlefield::~CocBattlefield() {
+    if (grid != NULL) {
+        delete grid;
+    }
+}
+
+void CocBattlefield::draw_grid() {
+    cv::Mat gridover(this->screen);//.size(), this->screen.type());
+    // top-left..bottom-right lines
+    float topoff = grid->origin.y() / grid->vertDist * grid->horzDist; // x offset between origin and top edge
+    float diff = screen.rows / grid->vertDist * grid->horzDist; // x offset between top and bottom edge
+
+    float xstart = grid->origin.x() - topoff;
+    float xoff = floor((xstart + diff) / grid->horzDist) * grid->horzDist; // offset to leftomst line on screen
+    for (xstart -= xoff;
+         xstart < this->screen.cols;
+         xstart += grid->horzDist) {
+        cv::line(gridover, cv::Point2f(xstart, 0), cv::Point2f(xstart + diff, screen.rows), cv::Scalar(0, 255, 0));
+    }
+    // top-right..bottom-left lines
+    xstart = grid->origin.x() + diff;
+    xoff = floor(xstart / grid->horzDist) * grid->horzDist; // offset to leftmost line
+    for (xstart -= xoff;
+         xstart - diff < screen.cols;
+         xstart += grid->horzDist) {
+        cv::line(gridover, cv::Point2f(xstart, 0), cv::Point2f(xstart - diff, screen.rows), cv::Scalar(0, 255, 0));
+    }
+    cv::imwrite("grid.png", gridover);
+}
+
 const std::list<FeatureMatch> CocBattlefield::analyze() {
+    this->find_grid();
+    this->draw_grid();
     this->buildings->setScale(this->find_scale());
     std::list<FeatureMatch> feature_matches;
     for (const Feature *feature : buildings->getTemplates()) {
@@ -213,4 +246,24 @@ double CocBattlefield::find_scale() {
     // default prop - TR0, found on most screenshots
     const MatchTemplate probe = buildings->getImage("TR0").sprites.front().get_template();
     return do_steps(screen, probe, 0.5, 2.0);
+}
+
+void CocBattlefield::find_grid() {
+    cv::Mat red;
+    cv::Mat green;
+    cv::extractChannel(screen, green, 1);
+    cv::extractChannel(screen, red, 2);
+    cv::Mat rmg(screen.size(), CV_16U);
+    cv::subtract(red, green, rmg);
+    cv::Mat &binary = red; // red, green unneeded - reuse
+    cv::threshold(rmg, binary, 50, 255, cv::THRESH_BINARY);
+    // hardcoded image & offset
+    const struct image_with_mask lefttempl = load_cutout(":/cutouts/grid/left.png");
+    QPoint templ_offset(5, 17);
+
+    cv::Mat grid_gray;
+    cv::extractChannel(lefttempl.image, grid_gray, 0);
+    Match m = FindBestMatch(binary, MatchTemplate(grid_gray, lefttempl.mask), CV_TM_CCORR_NORMED);
+    qDebug() << "Grid position certainty" << m.value;
+    this->grid = new Grid(m.pos + templ_offset);
 }
