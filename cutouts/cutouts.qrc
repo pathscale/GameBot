@@ -30,5 +30,18 @@
         <file>cc6.png</file>
         <file>grid/left.png</file>
         <file>grid/right.png</file>
+        <file>ui/gold.png</file>
+        <file>ui/elixir.png</file>
+        <file>ui/darkelixir.png</file>
+        <file>ui/font/0.png</file>
+        <file>ui/font/1.png</file>
+        <file>ui/font/2.png</file>
+        <file>ui/font/3.png</file>
+        <file>ui/font/4.png</file>
+        <file>ui/font/5.png</file>
+        <file>ui/font/6.png</file>
+        <file>ui/font/7.png</file>
+        <file>ui/font/8.png</file>
+        <file>ui/font/9.png</file>
     </qresource>
 </RCC>
