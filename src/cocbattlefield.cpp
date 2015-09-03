@@ -264,6 +264,20 @@ const Match try_corner(const cv::Mat &binary, const QString &t) {
 }
 
 void CocBattlefield::find_grid() {
+    /* Detects the red drop zone outline and setups grid against it.
+     * Outline extraction: threshold(red-green) (keeps orange)
+     *   Better: inrange(reddish color)
+     * Grid calibration: find corners
+     *   left half of image - find left corner (anchor just outside tip)
+     *   right half - right corner
+     *   Better: find lines in both halves (template?)
+     *           rotate
+     *           sum by rows/columns
+     *           threshold sums
+     *           find distances between sums & offset
+     *           calculate grid
+     *   Also: opencv find_lines? & calculate grid
+     */
     cv::Mat red;
     cv::Mat green;
     cv::extractChannel(screen, green, 1);
