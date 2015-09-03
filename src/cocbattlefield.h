@@ -18,7 +18,7 @@ class Match {
 public:
     const QPoint pos;
     const float value; // if methods other than TM_CCORR_NORMED are ever used, value should be normalized to reflect accuracy and not raw match
-    Match(int x, int y, float value)
+    Match(const int x, const int y, const float value)
         : pos(x, y), value(value)
     {}
     Match(const Match &m)

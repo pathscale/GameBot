@@ -33,7 +33,6 @@ static cv::Mat doMatch(const cv::Mat &img, const MatchTemplate &templ, int match
 static Match FindBestMatch(const cv::Mat &img, const MatchTemplate &templ, const int match_method)
 {
     const cv::Mat result = doMatch(img, templ, match_method, 0);
-
     // Localize the best match with minMaxLoc
     double minVal, maxVal;
     cv::Point minLoc, maxLoc;
@@ -44,12 +43,17 @@ static Match FindBestMatch(const cv::Mat &img, const MatchTemplate &templ, const
     double matchVal = (match_method  == CV_TM_SQDIFF || match_method == CV_TM_SQDIFF_NORMED) ? minVal : maxVal;
     int x = matchLoc.x;
     int y = matchLoc.y;
-
-    /*// Debug
-    rectangle( img_display, matchLoc, Point( matchLoc.x + templ.cols , matchLoc.y + templ.rows ), Scalar(0,0xff,0), 2, 8, 0 );
-    imshow( image_window, img_display );
-    waitKey(0);
-    */
+/*
+cv::Mat chan;
+img.copyTo(chan);
+cv::Mat sq(img.rows, img.cols, img.type(), 0.0);
+cv::Mat sub = sq(cv::Rect2i(x, y, templ.image.cols, templ.image.rows));
+//cv::rectangle(sub, cv::Rect2i(0, 0, 10, 10), cv::Scalar(255));
+templ.image.copyTo(sub);
+cv::Mat in[] = {sq, chan, chan};
+cv::Mat out;
+cv::merge(in, 3, out);
+cv::imwrite("matchbox.png", out);*/
     return Match(x, y, matchVal);
 }
 
@@ -110,7 +114,8 @@ CocBattlefield::~CocBattlefield() {
 }
 
 void CocBattlefield::draw_grid() {
-    cv::Mat gridover(this->screen);//.size(), this->screen.type());
+    cv::Mat gridover;
+    this->screen.copyTo(gridover);
     // top-left..bottom-right lines
     float topoff = grid->origin.y() / grid->vertDist * grid->horzDist; // x offset between origin and top edge
     float diff = screen.rows / grid->vertDist * grid->horzDist; // x offset between top and bottom edge
@@ -248,6 +253,16 @@ double CocBattlefield::find_scale() {
     return do_steps(screen, probe, 0.5, 2.0);
 }
 
+const Match try_corner(const cv::Mat &binary, const QString &t) {
+    const struct image_with_mask templ = load_cutout(t);
+    /*cv::Mat templ_gray;
+    cv::extractChannel(templ.image, templ_gray, 0);
+    cv::Mat mask;
+    templ.image.copyTo(mask);
+    cv::dilate(mask, mask, cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2, 2)), cv::Point(-1, -1), 3);*/
+    return FindBestMatch(binary, MatchTemplate(templ.image, cv::Mat()), CV_TM_CCORR_NORMED);
+}
+
 void CocBattlefield::find_grid() {
     cv::Mat red;
     cv::Mat green;
@@ -257,13 +272,33 @@ void CocBattlefield::find_grid() {
     cv::subtract(red, green, rmg);
     cv::Mat &binary = red; // red, green unneeded - reuse
     cv::threshold(rmg, binary, 50, 255, cv::THRESH_BINARY);
+    //cv::imwrite("rmg.png", rmg);
+    //cv::imwrite("binary.png", binary);
     // hardcoded image & offset
-    const struct image_with_mask lefttempl = load_cutout(":/cutouts/grid/left.png");
-    QPoint templ_offset(5, 17);
-
-    cv::Mat grid_gray;
-    cv::extractChannel(lefttempl.image, grid_gray, 0);
-    Match m = FindBestMatch(binary, MatchTemplate(grid_gray, lefttempl.mask), CV_TM_CCORR_NORMED);
-    qDebug() << "Grid position certainty" << m.value;
-    this->grid = new Grid(m.pos + templ_offset);
+    // stupidest possible detection of polygon size: split image vertically. left side will have inside on the right, right side will have inside on the left. Important because grid intersections are always on the outside.
+    QPoint templ_offset;
+    Match *m = NULL;
+    // left part
+    int halfwidth = binary.cols / 2;
+    cv::Mat roi = binary(cv::Rect2i(0, 0, halfwidth, binary.rows));
+    Match ml = try_corner(roi, ":/cutouts/grid/left.png");
+    qDebug() << ml.pos << ml.value;
+    m = new Match(ml);
+    if (ml.value > 0.7) {
+        templ_offset = QPoint(3, 28);
+    } else {
+        delete m;
+        roi = binary(cv::Rect2i(halfwidth, 0, binary.cols - halfwidth, binary.rows));
+        Match mr = try_corner(roi, ":/cutouts/grid/right.png");
+        qDebug() << mr.value;
+        m = new Match(mr);
+        if (mr.value > 0.7) {
+            templ_offset = QPoint(halfwidth + 37, 31);
+        } else {
+            qDebug() << "Grid detection inadequate";
+        }
+    }
+    qDebug() << "Grid position certainty" << m->value;
+    this->grid = new Grid(m->pos + templ_offset);
+    delete m;
 }
