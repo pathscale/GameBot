@@ -1,5 +1,6 @@
 #include "cocbattlefield.h"
 #include <QDebug>
+#include <QTime>
 
 #include <functional>
 
@@ -30,7 +31,7 @@ static cv::Mat doMatch(const cv::Mat &img, const MatchTemplate &templ, int match
     return result;
 }
 
-static Match FindBestMatch(const cv::Mat &img, const MatchTemplate &templ, const int match_method)
+static const Match FindBestMatch(const cv::Mat &img, const MatchTemplate &templ, const int match_method)
 {
     const cv::Mat result = doMatch(img, templ, match_method, 0);
     // Localize the best match with minMaxLoc
@@ -55,6 +56,57 @@ cv::Mat out;
 cv::merge(in, 3, out);
 cv::imwrite("matchbox.png", out);*/
     return Match(x, y, matchVal);
+}
+
+static const Match findGridMatch(const cv::Mat &img, const Grid &grid, const MatchTemplate &templ, const int match_method) {
+    cv::Point2i matcharea(5, 5);
+    cv::Rect2i imgbounds = cv::Rect2i(0, 0, img.cols, img.rows);
+    cv::Mat result(matcharea.x,
+                   matcharea.y, CV_32FC1);
+    cv::Mat subimage;
+    cv::Point2f halfstep(grid.horzDist / 2, -grid.vertDist / 2);
+    cv::Point2f horzstep(grid.horzDist, 0);
+    // follow top-right..bottom-left lines
+    int topcount = floor(grid.origin.y() / grid.vertDist * 2);
+    cv::Point2f topy = cv::Point2f(grid.origin.x(), grid.origin.y()) + topcount * halfstep;
+    int leftcount = floor(topy.x / grid.horzDist);
+    cv::Point2f topleft = topy - horzstep * leftcount;
+
+/*    float topy = grid.origin.y() - topcount * grid.vertDist / 2;
+    qDebug() << topy;
+    float topoff = (grid.origin.y() - topy) / grid.vertDist * grid.horzDist;
+    float topx = grid.origin.x() + topoff;
+    int leftcount = floor(topx / grid.horzDist);
+    float leftx = topx - grid.horzDist * leftcount;*/
+    cv::Mat res(img.rows, img.cols, CV_32FC1, 0.0);
+    cv::Mat subres;
+//    cv::Mat dups;
+//    img.copyTo(dups);
+    for (cv::Point2f start = topleft;
+         imgbounds.contains(start);
+         start += horzstep) {
+        for (cv::Point2f current = start;
+             imgbounds.contains(current);
+             current -= halfstep) {
+            if (!imgbounds.contains(cv::Point2i(current) + cv::Point2i(templ.image.cols, templ.image.rows) + matcharea)) {
+                continue;
+            }
+
+      //      cv::rectangle(dups, cv::Rect2i(current, current + cv::Point2f(1.5, 1.5)), cv::Scalar(255, 0, 0));
+            subimage = img(cv::Rect2i(cv::Point2i(current),
+                                      cv::Point2i(current) + cv::Point2i(templ.image.cols, templ.image.rows) + matcharea));
+            subres = res(cv::Rect2i(cv::Point2i(current), cv::Point2i(current) + matcharea));
+            cv::matchTemplate(subimage, templ.image, result, match_method);
+            cv::imwrite("r.png", result * 255);
+            result.copyTo(subres);
+        }
+    }
+    double maxVal;
+    cv::Point2i maxLoc;
+    cv::minMaxLoc(res, NULL, &maxVal, NULL, &maxLoc);
+cv::imwrite("res.png", res * 255);
+//    cv::imwrite("dups.png", dups);
+    return Match(maxLoc.x, maxLoc.y, maxVal);
 }
 
 static std::list<Match> FindAllMatches(const cv::Mat &img, const MatchTemplate &templ, int match_method, double threshold=0.95)
@@ -121,7 +173,7 @@ void CocBattlefield::draw_grid() {
     float diff = screen.rows / grid->vertDist * grid->horzDist; // x offset between top and bottom edge
 
     float xstart = grid->origin.x() - topoff;
-    float xoff = floor((xstart + diff) / grid->horzDist) * grid->horzDist; // offset to leftomst line on screen
+    float xoff = floor((xstart + diff) / grid->horzDist) * grid->horzDist; // offset to leftmost line on screen
     for (xstart -= xoff;
          xstart < this->screen.cols;
          xstart += grid->horzDist) {
@@ -147,7 +199,13 @@ const std::list<FeatureMatch> CocBattlefield::analyze() {
         int found = 0;
         if (feature->maxCount == 1) {
             for (const Sprite &sprite : feature->sprites) {
+                QTime a;
+                a.start();
                 const Match m = FindBestMatch(screen, MatchTemplate(sprite.img, sprite.mask), CV_TM_CCORR_NORMED);
+                qDebug() << "naive" << a.elapsed() << m.pos << m.value;
+                a.restart();
+                const Match z = findGridMatch(screen, *grid, MatchTemplate(sprite.img, sprite.mask), CV_TM_CCORR_NORMED);
+                qDebug() << "grid" << a.elapsed() << z.pos << z.value;
                 if (m.value > 0) {
                     feature_matches.push_back(FeatureMatch(feature, &sprite, m));
                     found++;
