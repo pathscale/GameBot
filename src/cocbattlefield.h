@@ -59,11 +59,24 @@ public:
     {}
 };
 
+class ResourceTuple
+{
+public:
+    int gold;
+    int elixir;
+    int dark_elixir;
+
+    ResourceTuple(int gold_v=-1, int elixir_v=-1, int dark_elixir_v=-1)
+        : gold(gold_v), elixir(elixir_v), dark_elixir(dark_elixir_v)
+    {}
+};
+
 class CocBattlefield
 {
     const cv::Mat screen;
     ResourceManager *buildings;
     BattlefieldSignals *sig;
+    ResourceTuple available_loot;
     Grid *grid = NULL;
 public:
     CocBattlefield(const QString &filepath, ResourceManager *buildings, BattlefieldSignals *proxy=NULL);
@@ -77,6 +90,7 @@ protected:
     double find_scale();
     void find_grid();
     void draw_grid();
+    void find_loot_numbers(float threshold=0.95);
 };
 
 #endif // COCBATTLEFIELD_H

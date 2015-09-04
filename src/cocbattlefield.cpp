@@ -2,6 +2,7 @@
 #include <QDebug>
 
 #include <functional>
+#include <map>
 
 #include <opencv2/highgui/highgui.hpp>
 
@@ -139,6 +140,7 @@ void CocBattlefield::draw_grid() {
 }
 
 const std::list<FeatureMatch> CocBattlefield::analyze() {
+    this->find_loot_numbers();
     this->find_grid();
     this->draw_grid();
     this->buildings->setScale(this->find_scale());
@@ -315,4 +317,54 @@ void CocBattlefield::find_grid() {
     qDebug() << "Grid position certainty" << m->value;
     this->grid = new Grid(m->pos + templ_offset);
     delete m;
+}
+
+static int number_match(const cv::Mat& area) {
+    QString templ_path = ":/cutouts/ui/font/#.png";
+    std::map<int, int> number_map;
+
+    for (int digit = 0; digit <= 9; ++digit) {
+        templ_path[18] = '0' + digit;
+        struct image_with_mask font_templ = load_cutout(templ_path);
+        cv::Mat font_grayscale;
+        cv::cvtColor(font_templ.image, font_grayscale, cv::COLOR_BGR2GRAY);
+
+        for (Match m : FindAllMatches(area, MatchTemplate(font_grayscale, cv::Mat()), CV_TM_CCORR_NORMED)) {
+            number_map[m.pos.x()] = digit;
+        }
+    }
+
+    // FIXME: verify that we didn't miss any digits
+    int ret = 0;
+    for (std::pair<int, int> x : number_map) {
+        ret *= 10;
+        ret += x.second;
+    }
+
+    return ret;
+}
+
+static void find_resource(const cv::Mat& scan_area, const cv::Mat& area, const QString& cutout_path, float threshold, int* result) {
+    struct image_with_mask res_templ = load_cutout(cutout_path);
+    Match m = FindBestMatch(scan_area, MatchTemplate(res_templ.image, cv::Mat()), CV_TM_CCORR_NORMED);
+    if (m.value >= threshold) {
+        qDebug() << "Found" << cutout_path << "at" << m.pos;
+
+        // text should be no higher than the icon,
+        // and no wider than quarter of screen width
+        cv::Mat text_area = area(cv::Rect(m.pos.x() + res_templ.image.cols, m.pos.y(), 0.25 * area.cols, res_templ.image.rows));
+        *result = number_match(text_area);
+        qDebug() << "Text matching result:" << *result;
+    }
+}
+
+void CocBattlefield::find_loot_numbers(float threshold) {
+    cv::Mat grayscale;
+    cv::cvtColor(screen, grayscale, cv::COLOR_BGR2GRAY);
+
+    cv::Mat scan_area = screen(cv::Rect(0, 0, 0.05 * grayscale.cols, grayscale.rows));
+
+    find_resource(scan_area, grayscale, ":/cutouts/ui/gold.png", threshold, &available_loot.gold);
+    find_resource(scan_area, grayscale, ":/cutouts/ui/elixir.png", threshold, &available_loot.elixir);
+    find_resource(scan_area, grayscale, ":/cutouts/ui/darkelixir.png", threshold, &available_loot.dark_elixir);
 }
