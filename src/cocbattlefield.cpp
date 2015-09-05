@@ -346,16 +346,23 @@ static int number_match(const cv::Mat& area) {
 
 static void find_resource(const cv::Mat& scan_area, const cv::Mat& area, const QString& cutout_path, float threshold, int* result) {
     struct image_with_mask res_templ = load_cutout(cutout_path);
-    Match m = FindBestMatch(scan_area, MatchTemplate(res_templ.image, cv::Mat()), CV_TM_CCORR_NORMED);
-    if (m.value >= threshold) {
-        qDebug() << "Found" << cutout_path << "at" << m.pos;
 
-        // text should be no higher than the icon,
-        // and no wider than quarter of screen width
-        cv::Mat text_area = area(cv::Rect(m.pos.x() + res_templ.image.cols, m.pos.y(), 0.25 * area.cols, res_templ.image.rows));
-        *result = number_match(text_area);
-        qDebug() << "Text matching result:" << *result;
-    }
+	for (float scale : {1.0, 0.85}) {
+		cv::Mat templ_image;
+		cv::resize(res_templ.image, templ_image, cv::Size(0, 0), scale, scale);
+
+		Match m = FindBestMatch(scan_area, MatchTemplate(templ_image, cv::Mat()), CV_TM_CCORR_NORMED);
+		if (m.value >= threshold) {
+			qDebug() << "Found" << cutout_path << "at" << m.pos << "scale" << scale;
+
+			// text should be no higher than the icon,
+			// and no wider than quarter of screen width
+			cv::Mat text_area = area(cv::Rect(m.pos.x() + res_templ.image.cols, m.pos.y(), 0.25 * area.cols, res_templ.image.rows));
+			*result = number_match(text_area);
+			qDebug() << "Text matching result:" << *result;
+			break;
+		}
+	}
 }
 
 void CocBattlefield::find_loot_numbers(float threshold) {
