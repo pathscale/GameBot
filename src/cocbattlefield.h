@@ -90,7 +90,7 @@ protected:
     double find_scale();
     void find_grid();
     void draw_grid();
-    void find_loot_numbers(float threshold=0.95);
+    void find_loot_numbers(float threshold=0.8);
 };
 
 #endif // COCBATTLEFIELD_H
