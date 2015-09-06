@@ -1,6 +1,6 @@
 #include "cocbattlefield.h"
 #include <QDebug>
-
+#include <QTime>
 #include <functional>
 #include <map>
 
@@ -144,11 +144,15 @@ const std::list<FeatureMatch> CocBattlefield::analyze() {
     this->find_grid();
     this->draw_grid();
     this->buildings->setScale(this->find_scale());
+    QTime a;
+    int i = 0;
+    a.start();
     std::list<FeatureMatch> feature_matches;
     for (const Feature *feature : buildings->getTemplates()) {
         int found = 0;
         if (feature->maxCount == 1) {
             for (const Sprite &sprite : feature->sprites) {
+                i++;
                 const Match m = FindBestMatch(screen, MatchTemplate(sprite.img, sprite.mask), CV_TM_CCORR_NORMED);
                 if (m.value > 0) {
                     feature_matches.push_back(FeatureMatch(feature, &sprite, m));
@@ -162,6 +166,7 @@ const std::list<FeatureMatch> CocBattlefield::analyze() {
             int found = 0;
             for (const Sprite &sprite : feature->sprites) {
                 // FIXME: limited maxCount
+                i++;
                 const std::list<Match> matches = FindAllMatches(screen, MatchTemplate(sprite.img, sprite.mask), CV_TM_CCORR_NORMED, sprite.detectionThreshold);
                 for (const Match &m : matches) {
                     feature_matches.push_back(FeatureMatch(feature, &sprite, m));
@@ -171,6 +176,7 @@ const std::list<FeatureMatch> CocBattlefield::analyze() {
             qDebug() << "Found" << found << "of" << feature->humanName;
         }
     }
+    qDebug() << "elapsed" << a.elapsed() << "per search" << a.elapsed() / i;
     return feature_matches;
 }
 

@@ -43,5 +43,6 @@
         <file>ui/font/7.png</file>
         <file>ui/font/8.png</file>
         <file>ui/font/9.png</file>
+        <file>storage/dd6_1.png</file>
     </qresource>
 </RCC>

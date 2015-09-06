@@ -63,7 +63,8 @@ const FeatureDescList cutouts {
     _F("IT3",   "Inferno3",      _SINGLE("defense/it3.png",      pos(0, 0),      0.95),  0,  3, Defense(0, 9, 0, Defense::SINGLE, Defense::AIR | Defense::GROUND)),
 
     _F("EC12",  "ElixirColl12",  _SINGLE("storage/ec12.png",     pos(0, 0),      0.95),  0,  3, Building(0)),
-    _F("DD6",   "DarkDrill6",    _SINGLE("storage/dd6.png",      pos(0, 0),      0.97),  0,  3, Building(0)),
+    _F("DD6",   "DarkDrill6",    _S({_I("storage/dd6.png",      pos(0, 0),      0.97),
+                                     _I("storage/dd6_1.png",    pos(0, 0),      0.95)}), 0,  3, Building(0)),
     _F("GM12",  "GoldMine12",    _SINGLE("storage/gm12.png",     pos(0, 0),      0.95),  0,  3, Building(0)),
 
     _F("GS11-0","GoldStor11_0",  _SINGLE("storage/gold11-0.png", pos(0, 0),      0.95),  0,  3, Storage(0, Storage::GOLD, 0)), // FIXME: health, offset, amount
