@@ -58,8 +58,8 @@ const FeatureDescList cutouts {
     _F("WT8",   "Wizard8",       _SINGLE("defense/wt8.png",      pos(0, 0),      0.95),  0,  3, Defense(0, 7, 0, Defense::SPLASH1TILE, Defense::AIR | Defense::GROUND)),
     _F("AT13",  "Archer13",      _SINGLE("defense/at13.png",     pos(0, 0),      0.95),  0,  3, Defense(0, 10, 0, Defense::SINGLE, Defense::AIR | Defense::GROUND)),
     _F("MO8",   "Mortar8",       _SINGLE("defense/mo8.png",      pos(0, 0),      0.95),  0,  3, Defense(0, 11, 0, Defense::SPLASH15TILE, Defense::GROUND)), // FIXME: range is <4, 11>
-    _F("XB4" ,  "XBow4",         _S({_I("defense/xb4.png",       pos(0, 0),      0.95),
-                                     _I("defense/xb4_1.png",     pos(0, 0),      0.97)}),0,  3, Defense(0, 11, 0, Defense::SINGLE, Defense::AIR | Defense::GROUND)), // FIXME: also Range=14, AIR, depending on setting
+    _F("XB4" ,  "XBow4",         _SINGLE("defense/xb4_2.png",       pos(0, 0),      0.95), 0,  3, Defense(0, 11, 0, Defense::SINGLE, Defense::AIR | Defense::GROUND)), // FIXME: also Range=14, AIR, depending on setting
+            // TODO: decrease threshold to ~0.9 after UI masked out
     _F("IT3",   "Inferno3",      _SINGLE("defense/it3.png",      pos(0, 0),      0.95),  0,  3, Defense(0, 9, 0, Defense::SINGLE, Defense::AIR | Defense::GROUND)),
 
     _F("EC12",  "ElixirColl12",  _SINGLE("storage/ec12.png",     pos(0, 0),      0.95),  0,  3, Building(0)),
