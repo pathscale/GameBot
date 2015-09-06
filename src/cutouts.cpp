@@ -53,8 +53,7 @@ const FeatureDescList cutouts {
 
     _F("AD8",   "AirDefense8",   _SINGLE("defense/ad8_m.png",    pos(0, 0),      0.8),   0,  3, Defense(1170, 10, 320, Defense::SINGLE, Defense::AIR)), // alpha mask
     _F("AS4",   "AirSweeper4",   _SINGLE("defense/as4.png",      pos(0, 0),      0.95),  0,  2, Defense(0, 15, 0, Defense::PUSH, Defense::AIR)), // It can be rotated 45 degrees at a time, and hence has 8 directional settings. The Air Sweeper attacks in a rectangular area of effect of width 5 tiles and length 14. (http://clashofclans.wikia.com/wiki/Air_Sweeper)
-    _F("CA13",  "Cannon13",      _S({_I("defense/ca13.png",      pos(0, 0),      0.95),
-                                     _I("defense/ca13_1.png",    pos(0, 0),      0.95)}),0,  3, Defense(0, 9, 0, Defense::SINGLE, Defense::GROUND)),
+    _F("CA13",  "Cannon13",      _S({_I("defense/ca13_2.png",    pos(0, 0),      0.92)}),0,  3, Defense(0, 9, 0, Defense::SINGLE, Defense::GROUND)),
     _F("WT8",   "Wizard8",       _SINGLE("defense/wt8.png",      pos(0, 0),      0.95),  0,  3, Defense(0, 7, 0, Defense::SPLASH1TILE, Defense::AIR | Defense::GROUND)),
     _F("AT13",  "Archer13",      _SINGLE("defense/at13.png",     pos(0, 0),      0.95),  0,  3, Defense(0, 10, 0, Defense::SINGLE, Defense::AIR | Defense::GROUND)),
     _F("MO8",   "Mortar8",       _SINGLE("defense/mo8.png",      pos(0, 0),      0.95),  0,  3, Defense(0, 11, 0, Defense::SPLASH15TILE, Defense::GROUND)), // FIXME: range is <4, 11>
