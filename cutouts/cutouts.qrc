@@ -44,5 +44,6 @@
         <file>ui/font/8.png</file>
         <file>ui/font/9.png</file>
         <file>storage/dd6_1.png</file>
+        <file>storage/gold11base.png</file>
     </qresource>
 </RCC>
