@@ -45,7 +45,7 @@ class BattlefieldSignals : public QObject
 public:
     explicit BattlefieldSignals(QObject *parent = 0);
 signals:
-    void debugChanged(const QString &filename);
+    void imageChanged(const QString &filename);
 };
 
 class Grid { // grid info in the default screenshot projection (rot45, known x/y ratio)
@@ -70,20 +70,22 @@ public:
         : gold(gold_v), elixir(elixir_v), dark_elixir(dark_elixir_v)
     {}
 };
-
+// TODO: separate algorithm from state & make state const-public
 class CocBattlefield
 {
     const cv::Mat screen;
     ResourceManager *buildings;
     BattlefieldSignals *sig;
     ResourceTuple available_loot;
-    std::list<FeatureMatch> defense_buildings;
+    std::list<std::pair<QPoint, const Defense*>> defense_buildings;
     Grid *grid = NULL;
 public:
     CocBattlefield(const QString &filepath, ResourceManager *buildings, BattlefieldSignals *proxy=NULL);
     const std::list<FeatureMatch> analyze();
     ~CocBattlefield();
-
+    inline const std::list<std::pair<QPoint, const Defense*>> &get_defense_buildings() {
+        return defense_buildings;
+    }
     inline double getScale() {
         return buildings->getScale();
     }
@@ -96,7 +98,7 @@ protected:
 
     // this may be more useful as std::map<QPoint, Defense>
     // QPoint describes bitmap position, not grid coords
-    const std::list<std::pair<QPoint, const Defense &> > find_defenses(const std::list<FeatureMatch> &buildings);
+    void find_defenses(const std::list<FeatureMatch> &buildings);
     void find_loot_numbers(float threshold=0.8);
 };
 

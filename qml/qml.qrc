@@ -5,5 +5,6 @@
         <file>DamageArea.qml</file>
         <file>MatchBox.qml</file>
         <file>GreyMaskThreshold.qml</file>
+        <file>Defense.qml</file>
     </qresource>
 </RCC>

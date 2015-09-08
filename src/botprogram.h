@@ -22,11 +22,16 @@ public:
     explicit BotProgram(QObject *parent = 0);
     Q_INVOKABLE void loadUrl(const QUrl &url);
     ~BotProgram();
+protected:
+    void display_matches(const std::list<FeatureMatch> &fmlist);
+    void display_heatmap(const std::list<std::pair<QPoint, const Defense *> > &buildings);
 signals:
     void heatmapChanged(const QList<QObject*> &dmg);
-    void debugChanged(const QUrl &url);
+    void matchesChanged(const QList<QObject*> &dmg);
+    void debugChanged(const QList<QObject*> &dbg);
+    void imageChanged(const QUrl &filename);
 public slots:
-    void onDebugChanged(const QString &filename);
+    void onImageChanged(const QString &filename);
 };
 
 #endif // BOTPROGRAM_H

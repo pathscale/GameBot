@@ -40,4 +40,3 @@ Rectangle {
         PropertyChanges { target: label; visible: true}
     }
 }
-

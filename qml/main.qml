@@ -13,8 +13,8 @@ ApplicationWindow {
 
     CocBot {
         id: bot
-        onHeatmapChanged: {
-            console.log("heatmap changed (FIXME: destroy objects)");
+        onMatchesChanged: {
+            console.log("Matches changed (FIXME: destroy objects)");
             for (var i = 0; i < dmg.length; i++) {
                 var d = dmg[i];
                 var component = Qt.createComponent("MatchBox.qml");
