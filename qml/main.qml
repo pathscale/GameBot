@@ -50,10 +50,8 @@ ApplicationWindow {
                 var d = dmg[i];
                 var component = Qt.createComponent("Defense.qml");
                 if (component.status == Component.Ready) {
-                    var props = {"xcenter": d.xcenter,
-                                 "ycenter": d.ycenter,
-                                 "width": d.width,
-                                 "height": d.height,
+                    var props = {"x": d.x,
+                                 "y": d.y,
                                  "scale": d.scale,
                                  "range": d.range};
                     var dynamicObject = component.createObject(mainForm.preview, props);
@@ -68,6 +66,9 @@ ApplicationWindow {
                     return
                 }
             }
+            mainForm.preview.grabToImage(function(result) {
+                                      result.saveToFile("something.png");
+            });
         }
 
         onDebugChanged: {

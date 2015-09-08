@@ -61,8 +61,8 @@ void BotProgram::display_heatmap(const std::list<std::pair<QPoint, const Defense
             qDebug() << "Component didn't load:" << component.status();
             qDebug() << component.errors();
         }
-        o->setProperty("xcenter", pos.x());
-        o->setProperty("ycenter", pos.y());
+        o->setProperty("x", pos.x());
+        o->setProperty("y", pos.y());
         o->setProperty("range", def->range);
         defboxen.append(o);
     }
