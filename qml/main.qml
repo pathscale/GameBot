@@ -44,6 +44,32 @@ ApplicationWindow {
                                       result.saveToFile("something.png");
             });
         }
+        onHeatmapChanged: {
+            console.log("Defense changed (FIXME: destroy objects)");
+            for (var i = 0; i < dmg.length; i++) {
+                var d = dmg[i];
+                var component = Qt.createComponent("Defense.qml");
+                if (component.status == Component.Ready) {
+                    var props = {"xcenter": d.xcenter,
+                                 "ycenter": d.ycenter,
+                                 "width": d.width,
+                                 "height": d.height,
+                                 "scale": d.scale,
+                                 "range": d.range};
+                    var dynamicObject = component.createObject(mainForm.preview, props);
+                    if (dynamicObject == null) {
+                        console.log("error creating block");
+                        console.log(component.errorString());
+                        return
+                    }
+                } else {
+                    console.log("error loading block component");
+                    console.log(component.errorString());
+                    return
+                }
+            }
+        }
+
         onDebugChanged: {
             console.log("debug changed:" + url);
             mainForm.debug_layer.source = url;
