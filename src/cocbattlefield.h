@@ -77,19 +77,26 @@ class CocBattlefield
     ResourceManager *buildings;
     BattlefieldSignals *sig;
     ResourceTuple available_loot;
+    std::list<FeatureMatch> defense_buildings;
     Grid *grid = NULL;
 public:
     CocBattlefield(const QString &filepath, ResourceManager *buildings, BattlefieldSignals *proxy=NULL);
     const std::list<FeatureMatch> analyze();
     ~CocBattlefield();
-public:
+
     inline double getScale() {
         return buildings->getScale();
     }
+    // TODO: QPoint screen_to_grid(QPoint) - when grid gains defined borders
 protected:
     double find_scale();
     void find_grid();
     void draw_grid();
+    const std::list<FeatureMatch> find_buildings();
+
+    // this may be more useful as std::map<QPoint, Defense>
+    // QPoint describes bitmap position, not grid coords
+    const std::list<std::pair<QPoint, const Defense &> > find_defenses(const std::list<FeatureMatch> &buildings);
     void find_loot_numbers(float threshold=0.8);
 };
 

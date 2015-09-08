@@ -62,29 +62,33 @@ public:
     const QString humanName;
     const int maxCount;
     const int tileWidth; // width in tiles
-    const ObjectBase type;
 protected:
-    inline FeatureBase(const QString &humanName, const int maxCount, const int tileWidth, const ObjectBase &type)
+    inline FeatureBase(const QString &humanName, const int maxCount, const int tileWidth)
         : humanName(humanName),
           maxCount(maxCount),
-          tileWidth(tileWidth),
-          type(type)
+          tileWidth(tileWidth)
     {}
 };
 
-/* TemplData != Template because:
+/* FeatureDesc != Feature because:
  * 1. data must be immutable
  * 2. loading images must be done after Qt resource system initializes
  * 3. if lazy loading is used, it will cut into time allocated for processing - unacceptable
  */
-
+// FIXME: replace with FeatureClassifier and add `Feature FC::extract(...)`
 class FeatureDesc : public FeatureBase {
 public:
     const SpriteDescAlts sprites;
-    inline FeatureDesc(const SpriteDescAlts &sprites, const QString &humanName, const int maxCount, const int tileWidth, const ObjectBase &type)
-        : FeatureBase(humanName, maxCount, tileWidth, type),
-          sprites(sprites)
-    {}
+    const ObjectBase *type; // unowned
+    inline FeatureDesc(const SpriteDescAlts &sprites, const QString &humanName, const int maxCount, const int tileWidth, const ObjectBase *type)
+        : FeatureBase(humanName, maxCount, tileWidth),
+          sprites(sprites),
+          type(type)
+    {
+        if (type == NULL) {
+            qDebug() << "cutouts not filled in properly" << humanName;
+        }
+    }
 };
 
 typedef std::list<std::pair<const QString, const FeatureDesc>> FeatureDescList; // TODO: std::pair should be const, but how to do it?
@@ -93,6 +97,7 @@ class Feature : public FeatureBase
 {
 public:
     const SpriteAlts sprites;
+    const ObjectBase &type;
     Feature(const SpriteAlts &sprites, const QString humanName, const int maxCount, const int tileWidth, const ObjectBase &type);
     Feature(const FeatureDesc &td);
     Feature scaled(double scale) const;

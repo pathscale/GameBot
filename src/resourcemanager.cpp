@@ -81,12 +81,13 @@ const SpriteAlts Sprite::scale_alts(const SpriteAlts &sprites, double scale) {
 }
 
 Feature::Feature(const SpriteAlts &sprites, const QString humanName, const int maxCount, const int tileWidth, const ObjectBase &type)
-    : FeatureBase(humanName, maxCount, tileWidth, type),
-      sprites(sprites)
+    : FeatureBase(humanName, maxCount, tileWidth),
+      sprites(sprites),
+      type(type)
 {}
 
 Feature::Feature(const FeatureDesc &fd)
-    : Feature(Sprite::alts_from_descs(fd.sprites), fd.humanName, fd.maxCount, fd.tileWidth, fd.type)
+    : Feature(Sprite::alts_from_descs(fd.sprites), fd.humanName, fd.maxCount, fd.tileWidth, *fd.type)
 {}
 
 Feature Feature::scaled(double scale) const {

@@ -1,7 +1,6 @@
 #ifndef OBJECTS_H
 #define OBJECTS_H
 
-
 class ObjectBase {
 public:
     enum feature_type {
@@ -11,6 +10,7 @@ public:
         STORAGE
     };
     const enum feature_type type;
+    int tileWidth; // TODO: fill in
 protected:
     inline ObjectBase(const enum feature_type ft)
         : type(ft)

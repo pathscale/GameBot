@@ -144,6 +144,23 @@ const std::list<FeatureMatch> CocBattlefield::analyze() {
     this->find_grid();
     this->draw_grid();
     this->buildings->setScale(this->find_scale());
+    const std::list<FeatureMatch> ftrs = this->find_buildings();
+    find_defenses(ftrs);
+    return ftrs;
+}
+
+const std::list<std::pair<QPoint, const Defense&> > CocBattlefield::find_defenses(const std::list<FeatureMatch> &buildings) {
+    std::list<std::pair<QPoint, const Defense&>> defenses;
+    for (const FeatureMatch &fm : buildings) {
+        if (fm.ftr->type.type == ObjectBase::DEFENSE) {
+            const Defense *def = static_cast<const Defense*>(&fm.ftr->type);
+            defenses.push_back(std::pair<QPoint, const Defense&>(fm.match.pos, *def));
+        }
+    }
+    return defenses;
+}
+
+const std::list<FeatureMatch> CocBattlefield::find_buildings() {
     QTime a;
     int i = 0;
     a.start();
