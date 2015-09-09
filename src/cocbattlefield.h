@@ -91,6 +91,8 @@ public:
     }
     // TODO: QPoint screen_to_grid(QPoint) - when grid gains defined borders
 protected:
+    // returns pixels on the screen; TODO: return tile coords
+    const QPoint get_building_center(const int tileWidth);
     double find_scale();
     void find_grid();
     void draw_grid();

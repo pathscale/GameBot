@@ -149,12 +149,22 @@ const std::list<FeatureMatch> CocBattlefield::analyze() {
     return ftrs;
 }
 
+const QPoint CocBattlefield::get_building_center(const int tileWidth) {
+    int adj_width = tileWidth;
+    if (adj_width % 2 == 0) {
+        adj_width--;
+    }
+    return QPoint(0, grid->vertDist * adj_width / 2);
+}
+
 void CocBattlefield::find_defenses(const std::list<FeatureMatch> &buildings) {
     std::list<std::pair<QPoint, const Defense*>> defenses;
     for (const FeatureMatch &fm : buildings) {
         if (fm.ftr->type.type == ObjectBase::DEFENSE) {
             const Defense *def = static_cast<const Defense*>(&fm.ftr->type);
-            defenses.push_back(std::pair<QPoint, const Defense*>(fm.match.pos, def));
+            const QPoint center_offset = this->get_building_center(def->tileWidth);
+            const QPoint center_of_tile = fm.match.pos + fm.sprite->anchor + center_offset;
+            defenses.push_back(std::pair<QPoint, const Defense*>(center_of_tile, def));
         }
     }
     this->defense_buildings = defenses;
