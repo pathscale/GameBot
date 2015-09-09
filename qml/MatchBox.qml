@@ -6,6 +6,10 @@ Rectangle {
     property double scale
     property alias xAnchor: footprint.x
     property alias yAnchor: footprint.y
+    // XXX: is there a way to define the below globally?
+    property double horzTile: 42
+    property double vertTile: 31.5
+    property double fakeSquare: horzTile * Math.SQRT1_2 // tile side when stretched vertically to square
     id: matchArea
     border.width: 1
     border.color: "red"
@@ -48,14 +52,14 @@ Rectangle {
 
     Rectangle {
         id: footprint
-        width: matchArea.tiles * 30 * matchArea.scale // 30 ~= tile side length when projected as square
-        height: matchArea.tiles * 30 * matchArea.scale
+        width: matchArea.tiles * fakeSquare * matchArea.scale // 30 ~= tile side length when projected as square
+        height: matchArea.tiles * fakeSquare * matchArea.scale
         border.width: 1
         border.color: "blue"
         color: "transparent"
         transformOrigin: Item.TopLeft
         rotation: 45
-        transform: Scale { yScale: 0.75 }
+        transform: Scale { yScale: vertTile / horzTile }
     }
 
     states: State {
