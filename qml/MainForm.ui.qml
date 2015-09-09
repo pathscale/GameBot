@@ -26,6 +26,13 @@ Item {
             checked: true
             text: "Show range"
         }
+        Button {
+            id: ss
+            text: "Screenshot"
+            onClicked: mainForm.preview.grabToImage(function(result) {
+                result.saveToFile("something.png");
+            });
+        }
     }
 
     ScrollView {
@@ -93,12 +100,5 @@ Item {
             maximumValue: thr_spin.maximumValue
             onValueChanged: thr_spin.value = value;
         }
-    }
-
-    CheckBox {
-        id: damage
-        x: 355
-        y: 15
-        text: qsTr("Show damage")
     }
 }

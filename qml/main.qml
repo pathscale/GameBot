@@ -40,16 +40,10 @@ ApplicationWindow {
         onMatchesChanged: {
             console.log("Matches changed (FIXME: destroy objects)");
             copyQML(dmg, mainForm.matches_layer, "MatchBox.qml", ["x", "y", "width", "height", "fit", "scale", "tiles", "xAnchor", "yAnchor"]);
-            mainForm.preview.grabToImage(function(result) {
-                                      result.saveToFile("something.png");
-            });
         }
         onHeatmapChanged: {
             console.log("Defense changed (FIXME: destroy objects)");
             copyQML(dmg, mainForm.heatmap_layer, "Defense.qml", ["x", "y", "scale", "range"]);
-            mainForm.preview.grabToImage(function(result) {
-                                      result.saveToFile("something.png");
-            });
         }
 
         onDebugChanged: {
