@@ -13,24 +13,19 @@ ApplicationWindow {
 
     CocBot {
         id: bot
-        onMatchesChanged: {
-            console.log("Matches changed (FIXME: destroy objects)");
-            for (var i = 0; i < dmg.length; i++) {
-                var d = dmg[i];
-                var component = Qt.createComponent("MatchBox.qml");
+        function copyQML(objects, destination, componentName, propNames) {
+            for (var i = 0; i < objects.length; i++) {
+                var o = objects[i];
+                var component = Qt.createComponent(componentName);
                 if (component.status == Component.Ready) {
-                    var props = {"x": d.x,
-                                 "y": d.y,
-                                 "width": d.width,
-                                 "height": d.height,
-                                 "fit": d.fit,
-                                 "scale": d.scale,
-                                 "tiles": d.tiles,
-                                 "xAnchor": d.xAnchor,
-                                 "yAnchor": d.yAnchor};
-                    var dynamicObject = component.createObject(mainForm.preview, props);
+                    var props = {}
+                    for (var y = 0; y < propNames.length; y++) {
+                        var propName = propNames[y];
+                        props[propName] = o[propName];
+                    }
+                    var dynamicObject = component.createObject(destination, props);
                     if (dynamicObject == null) {
-                        console.log("error creating block");
+                        console.log("error creating block ");
                         console.log(component.errorString());
                         return
                     }
@@ -40,32 +35,18 @@ ApplicationWindow {
                     return
                 }
             }
+        }
+
+        onMatchesChanged: {
+            console.log("Matches changed (FIXME: destroy objects)");
+            copyQML(dmg, mainForm.preview, "MatchBox.qml", ["x", "y", "width", "height", "fit", "scale", "tiles", "xAnchor", "yAnchor"]);
             mainForm.preview.grabToImage(function(result) {
                                       result.saveToFile("something.png");
             });
         }
         onHeatmapChanged: {
             console.log("Defense changed (FIXME: destroy objects)");
-            for (var i = 0; i < dmg.length; i++) {
-                var d = dmg[i];
-                var component = Qt.createComponent("Defense.qml");
-                if (component.status == Component.Ready) {
-                    var props = {"x": d.x,
-                                 "y": d.y,
-                                 "scale": d.scale,
-                                 "range": d.range};
-                    var dynamicObject = component.createObject(mainForm.preview, props);
-                    if (dynamicObject == null) {
-                        console.log("error creating block");
-                        console.log(component.errorString());
-                        return
-                    }
-                } else {
-                    console.log("error loading block component");
-                    console.log(component.errorString());
-                    return
-                }
-            }
+            copyQML(dmg, mainForm.preview, "Defense.qml", ["x", "y", "scale", "range"]);
             mainForm.preview.grabToImage(function(result) {
                                       result.saveToFile("something.png");
             });
