@@ -15,10 +15,35 @@ Rectangle {
         visible: false
         color: "white"
     }
+    Text {
+        id: offset
+        y: 100
+        color: "white"
+        visible: false
+        text: footprint.x + ',' + footprint.y
+        states: State {
+            name: "dragged"
+            when: mouseArea.pressed
+            PropertyChanges { target: offset; visible: true}
+        }
+    }
+
     MouseArea {
         id: mouseArea
         hoverEnabled: true
         anchors.fill: parent
+        property int dragStartX
+        property int dragStartY
+        onPressed: {
+            dragStartX = mouse.x;
+            dragStartY = mouse.y;
+        }
+        onPositionChanged: {
+            if (pressed) {
+                footprint.x = mouse.x - dragStartX;
+                footprint.y = mouse.y - dragStartY;
+            }
+        }
     }
 
     Rectangle {

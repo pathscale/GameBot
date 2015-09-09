@@ -18,10 +18,12 @@ Item {
         height: 30
         CheckBox {
             id: matches
+            checked: true
             text: "Show matches"
         }
         CheckBox {
             id: heatmap
+            checked: true
             text: "Show range"
         }
     }
