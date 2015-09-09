@@ -10,17 +10,18 @@ public:
         STORAGE
     };
     const enum feature_type type;
-    int tileWidth; // TODO: fill in
+    const int tileWidth;
 protected:
-    inline ObjectBase(const enum feature_type ft)
-        : type(ft)
+    inline ObjectBase(const enum feature_type ft, const int tileWidth)
+        : type(ft),
+          tileWidth(tileWidth)
     {}
 };
 
 class Scenery : public ObjectBase {
 public:
-    Scenery()
-        : ObjectBase(ObjectBase::SCENERY)
+    Scenery(const int tileWidth)
+        : ObjectBase(ObjectBase::SCENERY, tileWidth)
     {}
 };
 
@@ -28,13 +29,13 @@ class Building : public ObjectBase {
 public:
     const int hitpoints;
 protected:
-    Building(const enum ObjectBase::feature_type ft, const int hp)
-        : ObjectBase(ft),
+    Building(const enum ObjectBase::feature_type ft, const int tileWidth, const int hp)
+        : ObjectBase(ft, tileWidth),
           hitpoints(hp)
     {}
 public:
-    Building(const int hp)
-        : Building(ObjectBase::BUILDING, hp)
+    Building(const int tileWidth, const int hp)
+        : Building(ObjectBase::BUILDING, tileWidth, hp)
     {}
 };
 
@@ -47,8 +48,8 @@ public:
     };
     const enum resource_type resource;
     const int amount;
-    Storage(const int hp, const enum resource_type resource, const int amount)
-        : Building(ObjectBase::STORAGE, 0),
+    Storage(const int tileWidth, const int hp, const enum resource_type resource, const int amount)
+        : Building(ObjectBase::STORAGE, tileWidth, hp),
           resource(resource),
           amount(amount)
     {}
@@ -72,8 +73,8 @@ public:
     const float dps; // damage per second
     const enum damage_type damageType;
     const unsigned targets;
-    Defense(const int hp, const int range, const float dps, const enum damage_type damageType, const unsigned targets)
-        : Building(ObjectBase::DEFENSE, hp),
+    Defense(const int tileWidth, const int hp, const int range, const float dps, const enum damage_type damageType, const unsigned targets)
+        : Building(ObjectBase::DEFENSE, tileWidth, hp),
           range(range),
           dps(dps),
           damageType(damageType),

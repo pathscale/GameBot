@@ -37,7 +37,7 @@ void BotProgram::display_matches(const std::list<FeatureMatch> &fmlist) {
         o->setProperty("height", s->img.size().height);
         o->setProperty("fit", QString::number(m.value));
         o->setProperty("scale", scale);
-        o->setProperty("tiles", f->tileWidth);
+        o->setProperty("tiles", f->type.tileWidth);
         o->setProperty("xAnchor", s->anchor.x());
         o->setProperty("yAnchor", s->anchor.y());
         boxen.append(o);

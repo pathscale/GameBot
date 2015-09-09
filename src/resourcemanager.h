@@ -61,12 +61,10 @@ class FeatureBase {
 public:
     const QString humanName;
     const int maxCount;
-    const int tileWidth; // width in tiles
 protected:
-    inline FeatureBase(const QString &humanName, const int maxCount, const int tileWidth)
+    inline FeatureBase(const QString &humanName, const int maxCount)
         : humanName(humanName),
-          maxCount(maxCount),
-          tileWidth(tileWidth)
+          maxCount(maxCount)
     {}
 };
 
@@ -80,8 +78,8 @@ class FeatureDesc : public FeatureBase {
 public:
     const SpriteDescAlts sprites;
     const ObjectBase *type; // unowned
-    inline FeatureDesc(const SpriteDescAlts &sprites, const QString &humanName, const int maxCount, const int tileWidth, const ObjectBase *type)
-        : FeatureBase(humanName, maxCount, tileWidth),
+    inline FeatureDesc(const SpriteDescAlts &sprites, const QString &humanName, const int maxCount, const ObjectBase *type)
+        : FeatureBase(humanName, maxCount),
           sprites(sprites),
           type(type)
     {
@@ -98,7 +96,7 @@ class Feature : public FeatureBase
 public:
     const SpriteAlts sprites;
     const ObjectBase &type;
-    Feature(const SpriteAlts &sprites, const QString humanName, const int maxCount, const int tileWidth, const ObjectBase &type);
+    Feature(const SpriteAlts &sprites, const QString humanName, const int maxCount, const ObjectBase &type);
     Feature(const FeatureDesc &td);
     Feature scaled(double scale) const;
 };

@@ -10,19 +10,19 @@ Item {
 
     property alias preview: preview
     property alias debug_layer: debug_layer
+    property alias heatmap_layer: heatmap_layer
+    property alias matches_layer: matches_layer
 
     RowLayout {
         width: 350
         height: 30
-
-        Button {
-            id: button1
-            text: qsTr("Press Me 1")
+        CheckBox {
+            id: matches
+            text: "Show matches"
         }
-
-        Button {
-            id: button2
-            text: qsTr("Press Me 2")
+        CheckBox {
+            id: heatmap
+            text: "Show range"
         }
     }
 
@@ -36,6 +36,15 @@ Item {
             id: preview
             fillMode: Image.Pad
             source: ""
+            Item {
+                id: matches_layer
+                visible: matches.checked
+            }
+            Item {
+                id: heatmap_layer
+                visible: heatmap.checked
+            }
+
             Item {
                 Image {
                     id: debug_layer
