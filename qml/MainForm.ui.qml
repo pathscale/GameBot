@@ -81,9 +81,8 @@ Item {
 
             MouseArea {
                 anchors.fill: parent
-                //hoverEnabled: true
-                //onPositionChanged: damageValue.text = bot.getDamageText(mouse.x, mouse.y)
-                onPressed: damageValue.text = bot.getDamageText(mouse.x, mouse.y)
+                hoverEnabled: true
+                onPositionChanged: damageValue.text = bot.getDamageText(mouse.x, mouse.y)
             }
         }
     }
