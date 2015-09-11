@@ -12,26 +12,37 @@ Item {
     property alias debug_layer: debug_layer
     property alias heatmap_layer: heatmap_layer
     property alias matches_layer: matches_layer
+    Column {
+        RowLayout {
+            width: 350
+            height: 30
+            CheckBox {
+                id: matches
+                checked: true
+                text: "Show matches"
+            }
+            CheckBox {
+                id: heatmap
+                checked: true
+                text: "Show range"
+            }
+            Button {
+                id: ss
+                text: "Screenshot"
+                onClicked: mainForm.preview.grabToImage(function(result) {
+                    result.saveToFile("something.png");
+                });
+            }
+        }
 
-    RowLayout {
-        width: 350
-        height: 30
-        CheckBox {
-            id: matches
-            checked: true
-            text: "Show matches"
-        }
-        CheckBox {
-            id: heatmap
-            checked: true
-            text: "Show range"
-        }
-        Button {
-            id: ss
-            text: "Screenshot"
-            onClicked: mainForm.preview.grabToImage(function(result) {
-                result.saveToFile("something.png");
-            });
+        RowLayout {
+            Label {
+                text: "DPS under pointer: "
+            }
+            Label {
+                id: damageValue
+                text: "0"
+            }
         }
     }
 
@@ -66,6 +77,13 @@ Item {
                     anchors.fill: debug_layer
                     src: debug_layer
                 }
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                //hoverEnabled: true
+                //onPositionChanged: damageValue.text = bot.getDamageText(mouse.x, mouse.y)
+                onPressed: damageValue.text = bot.getDamageText(mouse.x, mouse.y)
             }
         }
     }

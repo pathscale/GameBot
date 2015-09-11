@@ -1,6 +1,7 @@
 #include "cocbattlefield.h"
 #include <QDebug>
 #include <QTime>
+#include <QMatrix4x4>
 #include <functional>
 #include <map>
 
@@ -156,6 +157,66 @@ const QPoint CocBattlefield::get_building_center(const int tileWidth) {
     }
     return QPoint(0, grid->vertDist * adj_width / 2);
 }
+
+const QPointF CocBattlefield::screen_to_gridF(const QPoint &p) const {
+    const QPoint offset = p - this->grid->origin;
+    QMatrix4x4 transform; // XXX: save this matrix? this is readable but slow (include origin translation)
+    transform.setToIdentity();
+    transform.rotate(-45., 0, 0, 1);
+    transform.scale(M_SQRT2 / this->grid->horzDist, M_SQRT2 / this->grid->vertDist); // horz and vertDist are diagonals of the unit square, therefore needs multiplication by diagonal
+    return transform.map(QPointF(offset));
+}
+
+float CocBattlefield::get_tile_distance(const QPoint &p1, const QPoint &p2) const {
+    const QPointF d = this->screen_to_gridF(p1) - this->screen_to_gridF(p2);
+    return sqrt(QPointF::dotProduct(d, d));
+}
+
+const DamageValue CocBattlefield::get_pixel_damage(const QPoint &pixel) const {
+    int ground = 0;
+    int air = 0;
+    int total = 0;
+    int splash_ground = 0;
+    int splash_air = 0;
+    int splash_total = 0;
+    std::list<SweepValue> sweeps;
+    for (const std::pair<QPoint, const Defense*> pd : this->defense_buildings) {
+        const QPoint position = pd.first;
+        const Defense *def = pd.second;
+        float dist = this->get_tile_distance(pixel, position);
+        if (dist > def->range) {
+            continue;
+        }
+
+        if (def->damageType == Defense::PUSH) {
+            sweeps.push_back(SweepValue(def->dps, 0)); // FIXME: calculate angle
+            continue;
+        }
+
+        bool splash_on = def->damageType == Defense::SPLASH15TILE || def->damageType == Defense::SPLASH1TILE;
+
+        if (def->targets & Defense::GROUND) {
+            ground += def->dps;
+            if (splash_on) {
+                splash_ground += def->dps;
+            }
+        }
+
+        if (def->targets & Defense::AIR) {
+            air += def->dps;
+            if (splash_on) {
+                splash_air += def->dps;
+            }
+        }
+
+        total += def->dps;
+        if (splash_on) {
+            splash_total += def->dps;
+        }
+    }
+    return DamageValue(ground, air, total, splash_ground, splash_air, splash_total, sweeps);
+}
+
 
 void CocBattlefield::find_defenses(const std::list<FeatureMatch> &buildings) {
     std::list<std::pair<QPoint, const Defense*>> defenses;

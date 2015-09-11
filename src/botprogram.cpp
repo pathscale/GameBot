@@ -79,6 +79,12 @@ void BotProgram::loadUrl(const QUrl &url) {
     this->display_heatmap(this->battlefield->get_defense_buildings());
 }
 
+QString BotProgram::getDamageText(int x, int y) {
+//    QPointF p = this->battlefield->screen_to_gridF(QPoint(x, y));
+//    return QString::number(p.x()) + "," + QString::number(p.y());
+    return this->battlefield->get_pixel_damage(QPoint(x, y)).to_string();
+}
+
 BotProgram::~BotProgram() {
     if (this->battlefield) {
         delete this->battlefield;

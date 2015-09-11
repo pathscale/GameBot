@@ -11,6 +11,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "resourcemanager.h"
+#include "objects.h"
 
 // Program logic. Only basic Qt types allowed (TODO)
 
@@ -89,6 +90,9 @@ public:
     inline double getScale() {
         return buildings->getScale();
     }
+    const DamageValue get_pixel_damage(const QPoint &pixel) const;
+    float get_tile_distance(const QPoint &p1, const QPoint &p2) const;
+    const QPointF screen_to_gridF(const QPoint &p) const;
     // TODO: QPoint screen_to_grid(QPoint) - when grid gains defined borders
 protected:
     // returns pixels on the screen; TODO: return tile coords

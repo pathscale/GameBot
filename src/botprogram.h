@@ -21,6 +21,7 @@ class BotProgram : public QObject
 public:
     explicit BotProgram(QObject *parent = 0);
     Q_INVOKABLE void loadUrl(const QUrl &url);
+    Q_INVOKABLE QString getDamageText(int x, int y);
     ~BotProgram();
 protected:
     void display_matches(const std::list<FeatureMatch> &fmlist);

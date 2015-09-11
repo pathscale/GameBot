@@ -1,5 +1,10 @@
 #ifndef OBJECTS_H
 #define OBJECTS_H
+#include <list>
+#include <QString>
+#include <QTextStream>
+#include <QPoint>
+#include <QDebug>
 
 class ObjectBase {
 public:
@@ -94,5 +99,65 @@ public:
  *
  * OR matches need to be converted to object-based classifiers before use.
  */
+
+class SweepValue {
+public:
+    const unsigned force; // FIXME: what unit?
+    const float angle; // radian angle: up=0; +0=left
+    SweepValue(unsigned force, unsigned angle)
+        : force(force),
+          angle(angle)
+    {}
+};
+
+class DamageValue {
+    // dps
+    static const std::list<SweepValue> nosweeps;
+public:
+    const unsigned ground;
+    const unsigned air;
+    const unsigned total;
+    const unsigned splash_ground;
+    const unsigned splash_air;
+    const unsigned splash_total;
+    const std::list<SweepValue> sweeps; // <dps, radian angle: up=0; +0=left>
+    DamageValue(unsigned ground, unsigned air, unsigned total,
+                unsigned splash_ground, unsigned splash_air, unsigned splash_total,
+                const std::list<SweepValue> &sweeps=nosweeps)
+        : ground(ground), air(air), total(total),
+          splash_ground(splash_ground), splash_air(splash_air), splash_total(splash_total),
+          sweeps(sweeps)
+    {}
+    const QString to_string() const {
+        QString ret;
+        QTextStream s(&ret);
+        if (ground) {
+            s << "ground:" << ground << ",";
+        }
+        if (air) {
+            s << "air:" << air << ",";
+        }
+        if (ground && air) {
+            s << "total:" << total << ".";
+        }
+        if (splash_ground) {
+            s << "splash G:" << splash_ground << ",";
+        }
+        if (splash_air) {
+            s << "splash A:" << splash_air << ",";
+        }
+        if (splash_ground && splash_air) {
+            s << "splash total:" << splash_total << ".";
+        }
+
+        if (!sweeps.empty()) {
+            s << "sweeps: TODO";
+        }
+        if (ret == "") {
+            ret = "0";
+        }
+        return ret;
+    }
+};
 
 #endif // OBJECTS_H
