@@ -12,7 +12,8 @@ Rectangle {
     property double vertTile: 31.5
     Rectangle {
         id: reach
-        width: defense.range * defense.horzTile * defense.scale // 30 ~= tile side length when projected as square
+        width: defense.range * 2 * (Math.SQRT1_2 * defense.horzTile) * defense.scale
+        //     radius * 2           square side = diagonal / sqrt2   * pixel scale
         height: width
         x: -height / 2
         y: -width / 2
