@@ -53,15 +53,16 @@ const FeatureDescList cutouts {
     _F("AQ",    "ArcherQueen",   _SINGLE("army/aq.png",          pos(21, -18),  0.95),  1, new Building(3, 0)), // Special: has range
 
     _F("AD8",   "AirDefense8",   _SINGLE("defense/ad8_m.png",    pos(30, 27),   0.8),   0, new Defense(3, 1170, 10, 320, Defense::SINGLE, Defense::AIR)), // alpha mask
-    _F("AS4",   "AirSweeper4",   _SINGLE("defense/as4.png",      pos(20, -14),  0.92),  0, new Defense(2, 0, 15, 0, Defense::PUSH, Defense::AIR)), // It can be rotated 45 degrees at a time, and hence has 8 rigid directional settings. The Air Sweeper attacks in a rectangular area of effect of width 5 tiles and length 14. (http://clashofclans.wikia.com/wiki/Air_Sweeper)
+    _F("AS4",   "AirSweeper4",   _SINGLE("defense/as4.png",      pos(20, -14),  0.92),  0, new Defense(2, 0, 15, 36, Defense::PUSH, Defense::AIR)), // It can be rotated 45 degrees at a time, and hence has 8 rigid directional settings. The Air Sweeper attacks in a rectangular area of effect of width 5 tiles and length 14. (http://clashofclans.wikia.com/wiki/Air_Sweeper)
+            // damage is push_tiles * 10 over 5 seconds
             // TODO: decrease threshold to ~0.9 after UI is masked out to gain obscured detection
-    _F("CA13",  "Cannon13",      _SINGLE("defense/ca13_2.png",   pos(38, -32),  0.92), 0,  new Defense(3, 0, 9, 0, Defense::SINGLE, Defense::GROUND)),
-    _F("WT8",   "Wizard8",       _SINGLE("defense/wt8.png",      pos(23, -10),  0.95),  0, new Defense(3, 0, 7, 0, Defense::SPLASH1TILE, Defense::AIR | Defense::GROUND)),
+    _F("CA13",  "Cannon13",      _SINGLE("defense/ca13_2.png",   pos(38, -32),  0.92), 0,  new Defense(3, 0, 9, 98, Defense::SINGLE, Defense::GROUND)),
+    _F("WT8",   "Wizard8",       _SINGLE("defense/wt8.png",      pos(23, -10),  0.95),  0, new Defense(3, 0, 7, 48, Defense::SPLASH1TILE, Defense::AIR | Defense::GROUND)),
     _F("AT13",  "Archer13",      _SINGLE("defense/at13.png",     pos(21, -2),   0.95),  0, new Defense(3, 0, 10, 98, Defense::SINGLE, Defense::AIR | Defense::GROUND)),
-    _F("MO8",   "Mortar8",       _SINGLE("defense/mo8.png",      pos(5, -35),   0.95),  0, new Defense(3, 0, 11, 0, Defense::SPLASH15TILE, Defense::GROUND)), // FIXME: range is <4, 11>
-    _F("XB4" ,  "XBow4",         _SINGLE("defense/xb4_2.png",    pos(39, -32),  0.95), 0,  new Defense(3, 0, 11, 0, Defense::SINGLE, Defense::AIR | Defense::GROUND)), // FIXME: also Range=14, AIR, depending on setting
+    _F("MO8",   "Mortar8",       _SINGLE("defense/mo8.png",      pos(5, -35),   0.95),  0, new Defense(3, 0, 11, 13, Defense::SPLASH15TILE, Defense::GROUND)), // FIXME: range is <4, 11>
+    _F("XB4" ,  "XBow4",         _SINGLE("defense/xb4_2.png",    pos(39, -32),  0.95), 0,  new Defense(3, 0, 11, 80, Defense::SINGLE, Defense::AIR | Defense::GROUND)), // FIXME: also Range=14, AIR, depending on setting
             // TODO: decrease threshold to ~0.9 after UI masked out
-    _F("IT3",   "Inferno3",      _SINGLE("defense/it3.png",      pos(20, 16),   0.95),  0, new Defense(2, 0, 9, 0, Defense::SINGLE, Defense::AIR | Defense::GROUND)),
+    _F("IT3",   "Inferno3",      _SINGLE("defense/it3.png",      pos(20, 16),   0.95),  0, new Defense(2, 0, 9, 140, Defense::SINGLE, Defense::AIR | Defense::GROUND)), // TODO: encoding the damage... it's complicated
 
     _F("EC12",  "ElixirColl12",  _SINGLE("storage/ec12.png",     pos(5, 14),    0.95),  0, new Building(3, 0)),
     _F("DD6",   "DarkDrill6",    _S({_I("storage/dd6.png",      pos(-9, -14),   0.97),
