@@ -10,6 +10,9 @@ Rectangle {
     // XXX: is there a way to define the below globally?
     property double horzTile: 42
     property double vertTile: 31.5
+    property string dmgType
+    property int dmgValue
+    property string targets
     Rectangle {
         id: reach
         width: defense.range * 2 * (Math.SQRT1_2 * defense.horzTile) * defense.scale
@@ -26,6 +29,18 @@ Rectangle {
         transform: Scale { yScale: defense.vertTile / defense.horzTile
                            origin.x: 0
                            origin.y: reach.height / 2
+        }
+    }
+    Rectangle {
+        color: "black"
+        visible: mainForm.preview.dmgLabelsVisible// this will give errors at internal instantiation...
+        x: -width / 2
+        width: dmgLabel.width
+        height: dmgLabel.height
+        Text {
+            id: dmgLabel
+            color: "white"
+            text: targets + "\n" + dmgType + '=' + dmgValue
         }
     }
 }

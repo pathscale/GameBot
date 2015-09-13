@@ -26,6 +26,12 @@ Item {
                 checked: true
                 text: "Show range"
             }
+            CheckBox {
+                id: dmgvalues
+                checked: true
+                text: "Show damage"
+            }
+
             Button {
                 id: ss
                 text: "Screenshot"
@@ -56,6 +62,7 @@ Item {
             id: preview
             fillMode: Image.Pad
             source: ""
+            property bool dmgLabelsVisible: dmgvalues.checked
             Item {
                 id: matches_layer
                 visible: matches.checked

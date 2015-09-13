@@ -2,6 +2,7 @@
 #define OBJECTS_H
 #include <list>
 #include <QString>
+#include <QStringList>
 #include <QTextStream>
 #include <QPoint>
 #include <QDebug>
@@ -68,11 +69,35 @@ public:
         SPLASH15TILE, // 1.5 tile
         PUSH
     };
+    static QString damageTypeToStr(enum damage_type dmg) {
+        switch (dmg) {
+        case SINGLE: { return "SINGLE"; }
+        case SPLASH1TILE: { return "SPLASH1"; }
+        case SPLASH15TILE: { return "SPLASH1.5"; }
+        case PUSH: { return "PUSH"; }
+        default: { return "INVALID"; }
+        }
+    }
 
     enum target_type {
         GROUND = 1 << 0,
         AIR = 1 << 1,
     };
+    static QString targetsToStr(int targets) {
+        QString ret;
+        QStringList list;
+        if (targets & GROUND) {
+            list += "GROUND";
+        }
+        if (targets & AIR) {
+            list += "AIR";
+        }
+        ret = list.join(",");
+        if (ret == "") {
+            return "NONE";
+        }
+        return ret;
+    }
 
     const int range;
     const float dps; // damage per second

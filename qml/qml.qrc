@@ -2,7 +2,6 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>MainForm.ui.qml</file>
-        <file>DamageArea.qml</file>
         <file>MatchBox.qml</file>
         <file>GreyMaskThreshold.qml</file>
         <file>Defense.qml</file>

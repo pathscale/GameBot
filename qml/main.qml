@@ -43,7 +43,7 @@ ApplicationWindow {
         }
         onHeatmapChanged: {
             console.log("Defense changed (FIXME: destroy objects)");
-            copyQML(dmg, mainForm.heatmap_layer, "Defense.qml", ["x", "y", "scale", "range"]);
+            copyQML(dmg, mainForm.heatmap_layer, "Defense.qml", ["x", "y", "scale", "range", "dmgType", "dmgValue", "targets"]);
         }
 
         onDebugChanged: {

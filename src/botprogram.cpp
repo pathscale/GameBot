@@ -64,6 +64,9 @@ void BotProgram::display_heatmap(const std::list<std::pair<QPoint, const Defense
         o->setProperty("x", pos.x());
         o->setProperty("y", pos.y());
         o->setProperty("range", def->range);
+        o->setProperty("dmgValue", def->dps);
+        o->setProperty("dmgType", Defense::damageTypeToStr(def->damageType));
+        o->setProperty("targets", Defense::targetsToStr(def->targets));
         defboxen.append(o);
     }
     emit this->heatmapChanged(defboxen);
