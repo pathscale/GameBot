@@ -21,6 +21,7 @@ add_executable(levelme_coc WIN32
 	src/main.cpp
 	src/resourcemanager.cpp
 	src/cutouts.cpp
+        src/detection.cpp
 	${LEVELME_COC_RESOURCES})
 
 set(my_opencv_libs

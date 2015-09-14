@@ -11,34 +11,10 @@
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "resourcemanager.h"
+#include "detection.h"
 #include "objects.h"
 
 // Program logic. Only basic Qt types allowed (TODO)
-
-class Match {
-public:
-    const QPoint pos;
-    const float value; // if methods other than TM_CCORR_NORMED are ever used, value should be normalized to reflect accuracy and not raw match
-    Match(const int x, const int y, const float value)
-        : pos(x, y), value(value)
-    {}
-    Match(const Match &m)
-        : pos(m.pos),
-          value(m.value)
-    {}
-};
-
-class FeatureMatch {
-public:
-    const Feature *ftr;
-    const Sprite *sprite;
-    const Match match;
-    FeatureMatch(const Feature *ftr, const Sprite *sprite, const Match &match)
-        : ftr(ftr),
-          sprite(sprite),
-          match(match)
-    {}
-};
 
 class BattlefieldSignals : public QObject
 {
@@ -75,13 +51,13 @@ public:
 class CocBattlefield
 {
     const cv::Mat screen;
-    ResourceManager *buildings;
+    FeatureManager *buildings;
     BattlefieldSignals *sig;
     ResourceTuple available_loot;
     std::list<std::pair<QPoint, const Defense*>> defense_buildings;
     Grid *grid = NULL;
 public:
-    CocBattlefield(const QString &filepath, ResourceManager *buildings, BattlefieldSignals *proxy=NULL);
+    CocBattlefield(const QString &filepath, FeatureManager *buildings, BattlefieldSignals *proxy=NULL);
     const std::list<FeatureMatch> analyze();
     ~CocBattlefield();
     inline const std::list<std::pair<QPoint, const Defense*>> &get_defense_buildings() {

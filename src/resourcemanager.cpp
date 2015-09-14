@@ -97,11 +97,11 @@ Feature Feature::scaled(double scale) const {
                    type);
 }
 
-ResourceManager::ResourceManager(const FeatureDescList &features)
+FeatureManager::FeatureManager(const FeatureDescList &features)
     : features(load_from_ftrs(features))
 {}
 
-void ResourceManager::setScale(double scale) {
+void FeatureManager::setScale(double scale) {
     if (scale == this->scale) {
         qDebug() << "redundant scale() call (" << scale << ")";
     }
@@ -118,7 +118,7 @@ void ResourceManager::setScale(double scale) {
     }
 }
 
-const std::list<const Feature*> ResourceManager::getTemplates() {
+const std::list<const Feature*> FeatureManager::getTemplates() const {
     const FeatureMap *fm;
     if (this->scale == 1) {
         fm = &features;

@@ -114,7 +114,7 @@ inline FeatureMap load_from_ftrs(const FeatureDescList &features) {
     return ret;
 }
 
-class ResourceManager
+class FeatureManager
 {
     // TODO: templates should be one-call-scalable
     FeatureMap features; // template owner
@@ -122,7 +122,7 @@ class ResourceManager
     FeatureMap scaledFeatures;
 
 public:
-    ResourceManager(const FeatureDescList &features);
+    FeatureManager(const FeatureDescList &features);
     inline const Feature getImage(const QString &name) {
         FeatureMap *f;
         if (scale == 1) {
@@ -142,7 +142,7 @@ public:
     }
 
     // TODO: ideally, this should return an iterable
-    const std::list<const Feature*> getTemplates();
+    const std::list<const Feature*> getTemplates() const;
 };
 
 #endif // RESOURCEMANAGER_H
