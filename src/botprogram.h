@@ -27,8 +27,8 @@ protected:
     void display_matches(const std::list<FeatureMatch> &fmlist);
     void display_heatmap(const std::list<std::pair<QPoint, const Defense *> > &buildings);
 signals:
-    void heatmapChanged(const QList<QObject*> &dmg);
-    void matchesChanged(const QList<QObject*> &dmg);
+    void heatmapChanged(const QVariantList &dmg);
+    void matchesChanged(const QVariantList &dmg);
     void debugChanged(const QList<QObject*> &dbg);
     void imageChanged(const QUrl &filename);
 public slots:

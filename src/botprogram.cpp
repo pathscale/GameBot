@@ -17,62 +17,39 @@ void BotProgram::onImageChanged(const QString &filename) {
 
 void BotProgram::display_matches(const std::list<FeatureMatch> &fmlist) {
     const double scale = this->battlefield->getScale();
-    QList<QObject*> boxen;
-
+    QVariantList boxen;
     for (const FeatureMatch &fm : fmlist) {
         const Feature *f = fm.ftr;
         const Sprite *s = fm.sprite;
         const Match &m = fm.match;
-        QQmlEngine engine;
-        QQmlComponent component(&engine,
-                QUrl(QStringLiteral("qrc:/MatchBox.qml")));
-        QObject *o = component.create(); // data container compatible with QML that will expose all needed properties
-        if (component.status() != QQmlComponent::Ready) {
-            qDebug() << "MatchBox didn't load:" << component.status();
-            qDebug() << component.errors();
-        }
-        o->setProperty("x", m.pos.x());
-        o->setProperty("y", m.pos.y());
-        o->setProperty("width", s->img.size().width);
-        o->setProperty("height", s->img.size().height);
-        o->setProperty("fit", QString::number(m.value));
-        o->setProperty("scale", scale);
-        o->setProperty("tiles", f->type.tileWidth);
-        o->setProperty("xAnchor", s->anchor.x());
-        o->setProperty("yAnchor", s->anchor.y());
-        boxen.append(o);
+        QVariantMap box = {{"x", m.pos.x()},
+                           {"y", m.pos.y()},
+                           {"width", s->img.size().width},
+                           {"height", s->img.size().height},
+                           {"fit", QString::number(m.value)},
+                           {"scale", scale},
+                           {"tiles", f->type.tileWidth},
+                           {"xAnchor", s->anchor.x()},
+                           {"yAnchor", s->anchor.y()}};
+        boxen.append(box);
     }
-
     emit this->matchesChanged(boxen);
-    for (const QObject *box : boxen) {
-        delete box;
-    }
 }
 
 void BotProgram::display_heatmap(const std::list<std::pair<QPoint, const Defense*>> &buildings) {
-    QList<QObject*> defboxen;
+    QVariantList defboxen;
     for (const std::pair<QPoint, const Defense*> bpair : buildings) {
         const QPoint pos = bpair.first;
         const Defense *def = bpair.second;
-        QQmlEngine engine;
-        QQmlComponent component(&engine, QUrl("qrc:/Defense.qml"));
-        QObject *o = component.create();
-        if (component.status() != QQmlComponent::Ready) {
-            qDebug() << "Component didn't load:" << component.status();
-            qDebug() << component.errors();
-        }
-        o->setProperty("x", pos.x());
-        o->setProperty("y", pos.y());
-        o->setProperty("range", def->range);
-        o->setProperty("dmgValue", def->dps);
-        o->setProperty("dmgType", Defense::damageTypeToStr(def->damageType));
-        o->setProperty("targets", Defense::targetsToStr(def->targets));
+        QVariantMap o = {{"x", pos.x()},
+                         {"y", pos.y()},
+                         {"range", def->range},
+                         {"dmgValue", def->dps},
+                         {"dmgType", Defense::damageTypeToStr(def->damageType)},
+                         {"targets", Defense::targetsToStr(def->targets)}};
         defboxen.append(o);
     }
     emit this->heatmapChanged(defboxen);
-    for (const QObject *box : defboxen) {
-        delete box;
-    }
 }
 
 void BotProgram::loadUrl(const QUrl &url) {
