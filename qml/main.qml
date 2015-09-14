@@ -18,12 +18,7 @@ ApplicationWindow {
                 var o = objects[i];
                 var component = Qt.createComponent(componentName);
                 if (component.status == Component.Ready) {
-                    var props = {}
-                    for (var y = 0; y < propNames.length; y++) {
-                        var propName = propNames[y];
-                        props[propName] = o[propName];
-                    }
-                    var dynamicObject = component.createObject(destination, props);
+                    var dynamicObject = component.createObject(destination, o);
                     if (dynamicObject == null) {
                         console.log("error creating block ");
                         console.log(component.errorString());
@@ -39,11 +34,11 @@ ApplicationWindow {
 
         onMatchesChanged: {
             console.log("Matches changed (FIXME: destroy objects)");
-            copyQML(dmg, mainForm.matches_layer, "MatchBox.qml", ["x", "y", "width", "height", "fit", "scale", "tiles", "xAnchor", "yAnchor"]);
+            copyQML(dmg, mainForm.matches_layer, "MatchBox.qml");
         }
         onHeatmapChanged: {
             console.log("Defense changed (FIXME: destroy objects)");
-            copyQML(dmg, mainForm.heatmap_layer, "Defense.qml", ["x", "y", "scale", "range", "dmgType", "dmgValue", "targets"]);
+            copyQML(dmg, mainForm.heatmap_layer, "Defense.qml");
         }
 
         onDebugChanged: {
