@@ -146,7 +146,7 @@ void CocBattlefield::find_defenses(const std::list<FeatureMatch> &buildings) {
 }
 
 const std::list<FeatureMatch> CocBattlefield::find_buildings() {
-    return match_features(screen, *buildings);
+    return match_features(screen, buildings->getTemplates());
 }
 
 static float best_match(const cv::Mat &image, const MatchTemplate &templ) {

@@ -83,12 +83,12 @@ const std::list<Match> FindAllMatches(const cv::Mat &img, const MatchTemplate &t
     return matches;
 }
 
-const std::list<FeatureMatch> match_features(const cv::Mat &image, const FeatureManager &features) {
+const std::list<FeatureMatch> match_features(const cv::Mat &image, const std::list<const Feature*> &features) {
     QTime a;
     int i = 0;
     a.start();
     std::list<FeatureMatch> feature_matches;
-    for (const Feature *feature : features.getTemplates()) {
+    for (const Feature *feature : features) {
         int found = 0;
         if (feature->maxCount == 1) {
             for (const Sprite &sprite : feature->sprites) {

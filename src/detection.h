@@ -43,7 +43,7 @@ const Match FindBestMatch(const cv::Mat &img, const MatchTemplate &templ, const 
 const std::list<Match> FindAllMatches(const cv::Mat &img, const MatchTemplate &templ, int match_method, double threshold=0.95);
 
 
-const std::list<FeatureMatch> match_features(const cv::Mat &image, const FeatureManager &features);
+const std::list<FeatureMatch> match_features(const cv::Mat &image, const std::list<const Feature *> &features);
 
 class Detector
 {
