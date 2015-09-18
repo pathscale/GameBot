@@ -3,7 +3,7 @@
 class AdbInstance {
 protected:
     FILE *stream = 0;
-    std::string device = "/dev/input/event2";
+    std::string device = "/dev/input/event2"; // FIXME: unhardcode
   
     int send_commands(const std::string &cmd);
     std::string get_start_touch(unsigned x, unsigned y);

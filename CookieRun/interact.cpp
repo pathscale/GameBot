@@ -5,11 +5,13 @@
 #include <stdlib.h>
 #include "include/interact.h"
 
+#define TRACKING_ID 0x1000abcd
 
 static std::string get_adb_command() {
-    std::string exec(getenv("ADB_BIN"));
-    if (exec == "") {
-        exec = "adb";
+    char *e = getenv("ADB_BIN");
+    std::string exec = "adb";
+    if (e) {
+        exec = e;
     }
     return exec + " " + "shell";
     //return "cat > pajp";
@@ -49,20 +51,35 @@ std::string codes_to_cmd(const std::string &device, const std::vector<evcode> &c
 /dev/input/event2: 0000 0000 00000000 // syn
 */
 
+// FIXME: specify slot in each packet
+// NOTE: this will blow up slightly if somethine else is pressed
+// NOTE: this may blow up a lot if disconnected in the middle of input
+// WARNING: some devices may not understand these commands at all
+
 std::string AdbInstance::get_start_touch(unsigned x, unsigned y) {
-    return codes_to_cmd(device,
+    return codes_to_cmd(device, {
+        {0x0003, 0x0039, TRACKING_ID}, // tracking ID
+{0x0003, 0x0030, 0x00000005}, // major axis
+{0x0003, 0x0035, x},
+{0x0003, 0x0036, y},
+{0x0003, 0x003a, 0x00000021}, // pressure
+{0x0000, 0x0000, 0x00000000}}); // syn
+    /*return codes_to_cmd(device,
                         {{3, 0x35, x}, // ABS_MT_POSITION_X
                          {3, 0x36, y}, // ABS_MT_POSITION_Y
                          {1, 0x14a, 1}, // BTN_TOUCH
                          {0, 0, 0}, // SYN_REPORT
-                        });
+                        });*/
 }
 
 std::string AdbInstance::get_end_touch(int desc) {
     return codes_to_cmd(device,
+                        {{0x0003, 0x0039, -1}, // reset tracking ID
+                         {0x0000, 0x0000, 0x00000000}}); // syn
+                        /*
                         {{1, 0x14a, 0}, // BTN_TOUCH
                          {0, 0, 0}, // SYN_REPORT
-                        });
+                        });*/
 }
 
 AdbInstance::AdbInstance() {
