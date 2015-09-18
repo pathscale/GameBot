@@ -21,7 +21,7 @@ struct evcode {
 std::string codes_to_cmd(const std::string &device, const std::vector<evcode> &codes) {
     std::stringstream s;
     for (const evcode &code : codes) {
-        s << "sendevent " << device << " " << code.type << " " << code.code << " " << code.value << std::endl;
+        s << "sendevent " << device << " " << code.type << " " << code.code << " " << code.value << ";";
     }
     return s.str();
 }
@@ -90,8 +90,9 @@ int AdbInstance::set_device() {
 }
 
 int AdbInstance::send_commands(const std::string &cmd) {
-    size_t wrote = fwrite(cmd.c_str(), 1, cmd.length(), stream);
-    if (wrote != cmd.length()) {
+    std::string out = cmd + "\n";
+    size_t wrote = fwrite(out.c_str(), 1, out.length(), stream);
+    if (wrote != out.length()) {
         std::cerr << "write size invalid" << std::endl;
         return 1;
     }
