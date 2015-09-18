@@ -8,8 +8,6 @@
 #include "include/csvpp.h"
 #include "include/interact.h"
 
-const char filename[] = "sample.log";
-
 struct event {
     int x;
     int y;
@@ -62,13 +60,15 @@ std::chrono::duration<int, std::milli> float_to_dur(float dur) {
 }
 
 int main(int argc, char **argv) {
-    std::ifstream f(filename);
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    //std::cout << begin.time_since_epoch().count() / 1000 << std::endl;
-    if (argc < 2) {
-        std::cout << "provide evdev path for the touch screen on your device!" << std::endl;
-        std::cout << "./player /dev/input/event0" << std::endl;
+    if (argc < 3) {
+        std::cout << "usage: provide evdev path for the touch screen on your device together with log file to play back" << std::endl;
+        std::cout << "./player /dev/input/event0 recording.log" << std::endl;
         std::cout << "hint: adb shell getevent" << std::endl;
+        return 1;
+    }
+    std::ifstream f(argv[2]);
+    if (f.fail()) {
+        std::cerr << "Couldn't open " << argv[2] << std::endl;
         return 1;
     }
     AdbInstance adb(argv[1]);
@@ -76,6 +76,8 @@ int main(int argc, char **argv) {
         std::cerr << "ADB no device" << std::endl;
         return 1;
     }
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    //std::cout << begin.time_since_epoch().count() / 1000 << std::endl;
     for (const event e : read_events(f)) {
         std::chrono::steady_clock::time_point event_time = begin + float_to_dur(e.start);
         //std::cout << event_time.time_since_epoch().count() / 1000 << std::endl;
