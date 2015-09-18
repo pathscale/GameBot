@@ -61,11 +61,17 @@ std::chrono::duration<int, std::milli> float_to_dur(float dur) {
     return std::chrono::duration<int, std::milli>((int)(dur * 1000));
 }
 
-int main(void) {
+int main(int argc, char **argv) {
     std::ifstream f(filename);
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     //std::cout << begin.time_since_epoch().count() / 1000 << std::endl;
-    AdbInstance adb;
+    if (argc < 2) {
+        std::cout << "provide evdev path for the touch screen on your device!" << std::endl;
+        std::cout << "./player /dev/input/event0" << std::endl;
+        std::cout << "hint: adb shell getevent" << std::endl;
+        return 1;
+    }
+    AdbInstance adb(argv[1]);
     if (adb.set_device()) {
         std::cerr << "ADB no device" << std::endl;
         return 1;
