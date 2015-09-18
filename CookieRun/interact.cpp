@@ -90,7 +90,7 @@ int AdbInstance::set_device() {
 }
 
 int AdbInstance::send_commands(const std::string &cmd) {
-    std::string out = cmd + "\n";
+    std::string out(cmd + "\n");
     size_t wrote = fwrite(out.c_str(), 1, out.length(), stream);
     if (wrote != out.length()) {
         std::cerr << "write size invalid" << std::endl;
@@ -110,6 +110,7 @@ int AdbInstance::end_touch(int desc) {
 
 AdbInstance::~AdbInstance() {
     if (stream) {
+        send_commands("exit");
         pclose(stream);
     }
 }
