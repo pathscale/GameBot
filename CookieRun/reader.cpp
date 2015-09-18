@@ -6,6 +6,7 @@
 #include <thread>
 #include <cmath>
 #include "include/csvpp.h"
+#include "include/interact.h"
 
 const char filename[] = "sample.log";
 
@@ -64,14 +65,23 @@ int main(void) {
     std::ifstream f(filename);
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     //std::cout << begin.time_since_epoch().count() / 1000 << std::endl;
+    AdbInstance adb;
+    if (adb.set_device()) {
+        std::cerr << "ADB no device" << std::endl;
+        return 1;
+    }
     for (const event e : read_events(f)) {
         std::chrono::steady_clock::time_point event_time = begin + float_to_dur(e.start);
         //std::cout << event_time.time_since_epoch().count() / 1000 << std::endl;
         std::this_thread::sleep_until(event_time);
+        int desc = adb.start_touch(e.x, e.y);
         std::cout << "ON: x " << e.x << " y " << e.y << " s " << e.start << " d " << e.duration << std::endl;
         if (e.duration) {
             event_time = event_time + float_to_dur(e.duration);
             std::this_thread::sleep_until(event_time);
+        }
+        if (adb.end_touch(desc)) {
+            std::cerr << "invalid touch descriptor" << std::endl;
         }
         std::cout << "OFF" << std::endl;
     }

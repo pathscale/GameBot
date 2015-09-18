@@ -7,5 +7,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_executable(player WIN32
 	reader.cpp
+	interact.cpp
 	csvpp/csvpp.cpp
 	csvpp/stringhelper.cpp)
