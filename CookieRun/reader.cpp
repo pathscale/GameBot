@@ -1,8 +1,11 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include "include/csvpp.h"
 #include <vector>
+#include <chrono>
+#include <thread>
+#include <cmath>
+#include "include/csvpp.h"
 
 const char filename[] = "sample.log";
 
@@ -53,9 +56,19 @@ const std::vector<event> read_events(std::istream &i) {
     return ret;
 }
 
+std::chrono::duration<int, std::milli> float_to_dur(float dur) {
+    return std::chrono::duration<int, std::milli>((int)(dur * 1000));
+}
+
 int main(void) {
     std::ifstream f(filename);
+    float last_event_time = 0;
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    //std::cout << begin.time_since_epoch().count() / 1000 << std::endl;
     for (const event e : read_events(f)) {
+        std::chrono::steady_clock::time_point event_time = begin + float_to_dur(e.start);
+        //std::cout << event_time.time_since_epoch().count() / 1000 << std::endl;
+        std::this_thread::sleep_until(event_time);
         std::cout << "x " << e.x << " y " << e.y << " s " << e.start << " d " << e.duration << std::endl;
     }
     return 0;
