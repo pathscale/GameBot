@@ -2,7 +2,9 @@
 
 """
 Usage:
-adb shell getevent -t /dev/input/event2 | recorder.py > output.log
+adb shell getevent -t /dev/input/event2 > raw.log
+cat raw.log | recorder.py > output.log
+FIXME: getevent | recorder.py will not work - recorder reads all stdin before printing. ctrl+c before stdin is done causes recorder to exit without printing
 """
 
 import sys
