@@ -15,6 +15,7 @@ ABS_MT_TRACKING_ID = 0x39
 ABS_MT_POSITION_X = 0x35
 ABS_MT_POSITION_Y = 0x36
 SYN_REPORT = 0x0
+SYN_MT_REPORT = 0x2
 
 class InputEvent:
     def __init__(self, time, type_, code, value):
@@ -44,30 +45,75 @@ class Touch:
     def duration(self):
         return self.end_time - self.start_time
 
+class SeqParser:
+    def __init__(self):
+        self.current_touch = None
+
+    def parse_sequence(self, events):
+        # properties touched by this sequence
+        x = None
+        y = None
+        type_a_commit = False
+        type_b_start = False
+        type_b_end = False
+        commit_time = None
+        for ev in events:
+            if ev.type == EV_ABS:
+                if ev.code == ABS_MT_TRACKING_ID: # possible type B (trackable multi)
+                    if ev.value != 0xffffffff:
+                        if type_b_start:
+                            print("Multitouch detected! (another mt_tracking_id)", file=sys.stderr)
+                        type_b_start = True
+                    else:
+                        type_b_end = True
+                elif ev.code == ABS_MT_POSITION_X:
+                    x = ev.value
+                elif ev.code == ABS_MT_POSITION_Y:
+                    y = ev.value
+            elif ev.type == EV_SYN:
+                if ev.code == SYN_MT_REPORT:
+                    if type_a_commit:
+                        print("Type A multitouch - already seen MT_REPORT in sequence")
+                    type_a_commit = True
+                elif ev.code == SYN_REPORT:
+                    commit_time = ev.time
+        # apply changes
+        if type_a_commit: # definitely type A
+            if x is not None and y is not None:
+                if self.current_touch is None:
+                    self.current_touch = Touch([x, y], commit_time)
+            elif x is None and y is None:
+                self.current_touch.end(commit_time)
+                touches.append(self.current_touch)
+                self.current_touch = None
+            else:
+                print("Type A only one of x, y updated", file=sys.stderr)
+        elif type_b_start: # Type A already handled, must be type B device
+            if self.current_touch is not None:
+                print("Type B multitouch (two start sequences)", file=sys.stderr)
+            self.current_touch = Touch([x, y], commit_time)
+        elif type_b_end:
+            if self.current_touch is None:
+                print("Type B Trying to clear touch that wasn't (another mt_tracking_id=-1)", file=sys.stderr)
+            self.current_touch.end(ev.time)
+            touches.append(self.current_touch)
+            self.current_touch = None
+
 start_timestamp = None
 touches = []
+current_sequence = []
 current_touch = None
+parser = SeqParser()
 for i, line in enumerate(sys.stdin.readlines()):
     ev = InputEvent.from_string(line)
     if (start_timestamp is None):
         start_timestamp = ev.time
     ev.time -= start_timestamp
-    if ev.type == EV_ABS:
-        if ev.code == ABS_MT_TRACKING_ID:
-            if ev.value != 0xffffffff:
-                if current_touch is not None:
-                    print("Multitouch detected! (another mt_tracking_id in line {})".format(i), file=sys.stderr)
-                current_touch = Touch([None, None], ev.time)
-            else:
-                if current_touch is None:
-                    print("Trying to clear touch that wasn't (another mt_tracking_id=-1 in line {})".format(i), file=sys.stderr)
-                current_touch.end(ev.time)
-                touches.append(current_touch)
-                current_touch = None
-        elif ev.code == ABS_MT_POSITION_X and current_touch.coords[0] is None:
-            current_touch.coords[0] = ev.value
-        elif ev.code == ABS_MT_POSITION_Y and current_touch.coords[1] is None:
-            current_touch.coords[1] = ev.value
+    current_sequence.append(ev)
+    if ev.type == EV_SYN and ev.code == SYN_REPORT:
+        parser.parse_sequence(current_sequence)
+        current_sequence = []
 
+    
 for touch in touches:
-    print("{},{},{:.3},{:.3}".format(touch.coords[0], touch.coords[1], touch.start_time, touch.duration()))
+    print("{},{},{:.3f},{:.3f}".format(touch.coords[0], touch.coords[1], touch.start_time, touch.duration()))
