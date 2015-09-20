@@ -93,13 +93,18 @@ class SeqParser:
         elif type_b_start: # Type A already handled, must be type B device
             if self.current_touch is not None:
                 print("Type B multitouch (two start sequences)", file=sys.stderr)
-            self.current_touch = Touch([x, y], commit_time)
+            else:
+                if x is None or y is None:
+                    print("Type B start misses a coord")
+                else: 
+                    self.current_touch = Touch([x, y], commit_time)
         elif type_b_end:
             if self.current_touch is None:
                 print("Type B Trying to clear touch that wasn't (another mt_tracking_id=-1)", file=sys.stderr)
-            self.current_touch.end(ev.time)
-            touches.append(self.current_touch)
-            self.current_touch = None
+            else:
+                self.current_touch.end(ev.time)
+                touches.append(self.current_touch)
+                self.current_touch = None
 
 start_timestamp = None
 touches = []
