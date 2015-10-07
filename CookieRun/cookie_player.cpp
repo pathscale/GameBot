@@ -102,7 +102,10 @@ class GameState {
      */
     /* timings between load end and first jump (regardless ping)
      * 6.893 way too late (falls in, good after respawn)
-     * 
+     * 6.693 much too late (floats over (?), good after 2 crashes)
+     * 6.393 a bit too late (falls into 2nd hole, good later)
+     * 6.193 minimally too early (bug finishes it)
+     * 6.193 minimally too early (bug finishes it)
      */
 public:
     enum state {
