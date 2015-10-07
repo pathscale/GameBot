@@ -75,7 +75,7 @@ class SeqParser:
             elif ev.type == EV_SYN:
                 if ev.code == SYN_MT_REPORT:
                     if type_a_commit:
-                        print("Type A multitouch - already seen MT_REPORT in sequence")
+                        print("Type A multitouch - already seen MT_REPORT in sequence", file=sys.stderr)
                     type_a_commit = True
                 elif ev.code == SYN_REPORT:
                     commit_time = ev.time
@@ -95,7 +95,7 @@ class SeqParser:
                 print("Type B multitouch (two start sequences)", file=sys.stderr)
             else:
                 if x is None or y is None:
-                    print("Type B start misses a coord")
+                    print("Type B start misses a coord", file=sys.stderr)
                 else: 
                     self.current_touch = Touch([x, y], commit_time)
         elif type_b_end:

@@ -83,10 +83,11 @@ AdbInstance::AdbInstance(const std::string &evdev_path)
 
 int AdbInstance::set_device() {
     stream = popen(get_adb_command().c_str(), "w");
-    if (stream) {
-        return 0;
+    if (!stream) {
+        return 1;
     }
-    return 1;
+    send_commands("echo working");
+    return 0;
 }
 
 int AdbInstance::send_commands(const std::string &cmd) {
