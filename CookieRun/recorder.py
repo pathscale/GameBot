@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 """
+This converts raw evdev events into clicks.
 Usage:
 adb shell getevent -t /dev/input/event2 > raw.log
 cat raw.log | recorder.py > output.log
@@ -47,6 +48,7 @@ class Touch:
     def duration(self):
         return self.end_time - self.start_time
 
+
 class SeqParser:
     def __init__(self):
         self.current_touch = None
@@ -64,7 +66,7 @@ class SeqParser:
                 if ev.code == ABS_MT_TRACKING_ID: # possible type B (trackable multi)
                     if ev.value != 0xffffffff:
                         if type_b_start:
-                            print("Multitouch detected! (another mt_tracking_id)", file=sys.stderr)
+                            print(ev.time, "Multitouch detected! (another mt_tracking_id)", file=sys.stderr)
                         type_b_start = True
                     else:
                         type_b_end = True
@@ -75,10 +77,11 @@ class SeqParser:
             elif ev.type == EV_SYN:
                 if ev.code == SYN_MT_REPORT:
                     if type_a_commit:
-                        print("Type A multitouch - already seen MT_REPORT in sequence", file=sys.stderr)
+                        print(ev.time, "Type A multitouch - already seen MT_REPORT in sequence", file=sys.stderr)
                     type_a_commit = True
                 elif ev.code == SYN_REPORT:
                     commit_time = ev.time
+        ret = None
         # apply changes
         if type_a_commit: # definitely type A
             if x is not None and y is not None:
@@ -86,25 +89,26 @@ class SeqParser:
                     self.current_touch = Touch([x, y], commit_time)
             elif x is None and y is None:
                 self.current_touch.end(commit_time)
-                touches.append(self.current_touch)
+                ret = self.current_touch
                 self.current_touch = None
             else:
-                print("Type A only one of x, y updated", file=sys.stderr)
+                print(commit_time, "Type A only one of x, y updated", file=sys.stderr)
         elif type_b_start: # Type A already handled, must be type B device
             if self.current_touch is not None:
-                print("Type B multitouch (two start sequences)", file=sys.stderr)
+                print(commit_time, "Type B multitouch (two start sequences)", file=sys.stderr)
             else:
                 if x is None or y is None:
-                    print("Type B start misses a coord", file=sys.stderr)
+                    print(commit_time, "Type B start misses a coord", file=sys.stderr)
                 else: 
                     self.current_touch = Touch([x, y], commit_time)
         elif type_b_end:
             if self.current_touch is None:
-                print("Type B Trying to clear touch that wasn't (another mt_tracking_id=-1)", file=sys.stderr)
+                print(commit_time, "Type B Trying to clear touch that wasn't (another mt_tracking_id=-1)", file=sys.stderr)
             else:
                 self.current_touch.end(ev.time)
-                touches.append(self.current_touch)
+                ret = self.current_touch
                 self.current_touch = None
+        return ret
 
 start_timestamp = None
 touches = []
@@ -115,10 +119,13 @@ for i, line in enumerate(sys.stdin.readlines()):
     ev = InputEvent.from_string(line)
     if (start_timestamp is None):
         start_timestamp = ev.time
-    ev.time -= start_timestamp
     current_sequence.append(ev)
     if ev.type == EV_SYN and ev.code == SYN_REPORT:
-        parser.parse_sequence(current_sequence)
+        touch = parser.parse_sequence(current_sequence)
+        if touch is not None:
+            touch.start_time -= start_timestamp
+            touch.end_time -= start_timestamp
+            touches.append(touch)
         current_sequence = []
 
     
