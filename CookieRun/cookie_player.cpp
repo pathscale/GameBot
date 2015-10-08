@@ -106,6 +106,7 @@ class GameState {
      * 6.393 a bit too late (falls into 2nd hole, good later)
      * 6.193 minimally too early (bug finishes it)
      * 6.193 minimally too early (bug finishes it)
+     * 6.234 - almost perfect (slide too late? or too early? quite far in the game)
      */
 public:
     enum state {

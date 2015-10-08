@@ -49,12 +49,21 @@ class Touch:
         return self.end_time - self.start_time
 
 
+class RawPress:
+    def __init__(self):
+        self.tracking_id = None
+        self.x = None
+        self.y = None
+
+
 class SeqParser:
     def __init__(self):
         self.current_touch = None
+        self.current_press = RawPress()
 
     def parse_sequence(self, events):
         # properties touched by this sequence
+        p = self.current_press
         x = None
         y = None
         type_a_commit = False
@@ -65,15 +74,17 @@ class SeqParser:
             if ev.type == EV_ABS:
                 if ev.code == ABS_MT_TRACKING_ID: # possible type B (trackable multi)
                     if ev.value != 0xffffffff:
-                        if type_b_start:
+                        if p.tracking_id is not None and p.tracking_id != ev.value: # type A seems to keep tracking ID constant. incorrect, but kills some noise
                             print(ev.time, "Multitouch detected! (another mt_tracking_id)", file=sys.stderr)
                         type_b_start = True
+                        p.tracking_id = ev.value
                     else:
                         type_b_end = True
+                        p.tracking_id = None
                 elif ev.code == ABS_MT_POSITION_X:
-                    x = ev.value
+                    p.x = ev.value
                 elif ev.code == ABS_MT_POSITION_Y:
-                    y = ev.value
+                    p.y = ev.value
             elif ev.type == EV_SYN:
                 if ev.code == SYN_MT_REPORT:
                     if type_a_commit:
@@ -81,13 +92,17 @@ class SeqParser:
                     type_a_commit = True
                 elif ev.code == SYN_REPORT:
                     commit_time = ev.time
+
         ret = None
+        if p.tracking_id is not None and not type_b_end and not type_b_start:
+#            print(commit_time, "Type B slide: no change in tracking id", file=sys.stderr)
+            return ret
         # apply changes
         if type_a_commit: # definitely type A
-            if x is not None and y is not None:
+            if p.x is not None and p.y is not None:
                 if self.current_touch is None:
-                    self.current_touch = Touch([x, y], commit_time)
-            elif x is None and y is None:
+                    self.current_touch = Touch([p.x, p.y], commit_time)
+            elif p.x is None and p.y is None:
                 self.current_touch.end(commit_time)
                 ret = self.current_touch
                 self.current_touch = None
@@ -97,10 +112,10 @@ class SeqParser:
             if self.current_touch is not None:
                 print(commit_time, "Type B multitouch (two start sequences)", file=sys.stderr)
             else:
-                if x is None or y is None:
+                if p.x is None or p.y is None:
                     print(commit_time, "Type B start misses a coord", file=sys.stderr)
                 else: 
-                    self.current_touch = Touch([x, y], commit_time)
+                    self.current_touch = Touch([p.x, p.y], commit_time)
         elif type_b_end:
             if self.current_touch is None:
                 print(commit_time, "Type B Trying to clear touch that wasn't (another mt_tracking_id=-1)", file=sys.stderr)
