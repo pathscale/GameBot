@@ -119,6 +119,19 @@ class GameState {
      * 6.493 - too early, jumps over green
      * 6.593 - too early, jumps over green
      * 6.693 - perfect
+     * 6.693 - too late, lands on spike
+     * -- fix spike
+     * 6.693 - perfect (jump into wall)
+     * -- fix jump
+     * 6.693 - same (slide delayed)
+     * -- fix slide -2s
+     * 6.693 - perfect (double jump into abyss)
+     * -- fix abyss jump
+     * 6.693 - slide stops too early
+     * 6.693 - perfect
+     * 6.693 - catches speed too late
+     * -- fix speed jump
+     * 6.693 - weak cookie exhausted
      * 
      * play_level_1.log:
      * @full-frame, scale=8x
