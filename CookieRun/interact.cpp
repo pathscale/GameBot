@@ -2,7 +2,6 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
-#include <chrono>
 #include <thread>
 #include <stdlib.h>
 #include "include/interact.h"
@@ -57,14 +56,18 @@ std::string codes_to_cmd(const std::string &device, const std::vector<evcode> &c
 // NOTE: this may blow up a lot if disconnected in the middle of input
 // WARNING: some devices may not understand these commands at all
 
-std::string AdbInstance::get_start_touch(unsigned x, unsigned y) {
-    return codes_to_cmd(evdev_path, {
+std::string AdbInstance::get_start_touch(unsigned x, unsigned y, bool syn) {
+    std::string ret = codes_to_cmd(evdev_path, {
         {0x0003, 0x0039, TRACKING_ID}, // tracking ID
         {0x0003, 0x0030, 0x00000005}, // major axis
         {0x0003, 0x0035, (int)x},
         {0x0003, 0x0036, (int)y},
         {0x0003, 0x003a, 0x00000021}, // pressure
-        {0x0000, 0x0000, 0x00000000}}); // syn
+    });
+    if (syn) {
+        ret += this->syn;
+    }
+    return ret;
     /*return codes_to_cmd(device,
                         {{3, 0x35, x}, // ABS_MT_POSITION_X
                          {3, 0x36, y}, // ABS_MT_POSITION_Y
@@ -73,10 +76,14 @@ std::string AdbInstance::get_start_touch(unsigned x, unsigned y) {
                         });*/
 }
 
-std::string AdbInstance::get_end_touch(int desc) {
-    return codes_to_cmd(evdev_path,
+std::string AdbInstance::get_end_touch(int desc, bool syn) {
+    std::string ret = codes_to_cmd(evdev_path,
                         {{0x0003, 0x0039, -1}, // reset tracking ID
-                         {0x0000, 0x0000, 0x00000000}}); // syn
+                        });
+    if (syn) {
+        ret += this->syn;
+    }
+    return ret;
                         /*
                         {{1, 0x14a, 0}, // BTN_TOUCH
                          {0, 0, 0}, // SYN_REPORT
@@ -84,7 +91,8 @@ std::string AdbInstance::get_end_touch(int desc) {
 }
 
 AdbInstance::AdbInstance(const std::string &evdev_path)
-    : evdev_path(evdev_path)
+    : evdev_path(evdev_path),
+      syn(codes_to_cmd(evdev_path, {{0, 0, 0}}))
 {}
 
 int AdbInstance::set_device() {
@@ -115,6 +123,25 @@ int AdbInstance::end_touch(int desc) {
     return send_commands(get_end_touch(desc));
 }
 
+int AdbInstance::start_touch(unsigned x, unsigned y, std::chrono::steady_clock::time_point time) {
+    int ret = send_commands(get_start_touch(x, y, false));
+    if (ret) {
+        return 1;
+    }
+    std::this_thread::sleep_until(time);
+    return send_commands(this->syn);
+}
+
+int AdbInstance::end_touch(int desc, std::chrono::steady_clock::time_point time) {
+    int ret = send_commands(get_end_touch(desc, false));
+    if (ret) {
+        return 1;
+    }
+    std::this_thread::sleep_until(time);
+    return send_commands(this->syn);
+}
+
+
 AdbInstance::~AdbInstance() {
     if (stream) {
         send_commands("exit");
@@ -126,14 +153,15 @@ int AdbInstance::playback_events(const std::vector<event> &events, float delay_s
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now() + float_to_dur(delay_sec);
     for (const event e : events) {
         std::chrono::steady_clock::time_point event_time = begin + float_to_dur(e.start);
-        std::this_thread::sleep_until(event_time);
-        int desc = start_touch(e.x, e.y);
+        int desc = start_touch(e.x, e.y, event_time);
         //std::cout << "ON: x " << e.x << " y " << e.y << " s " << e.start << " d " << e.duration << std::endl;
+        int res;
         if (e.duration) {
             event_time = event_time + float_to_dur(e.duration);
-            std::this_thread::sleep_until(event_time);
+            res = end_touch(desc, event_time);
+        } else {
+            res = end_touch(desc);
         }
-        int res = end_touch(desc);
         if (res) {
             std::cerr << "invalid touch descriptor" << std::endl;
         }

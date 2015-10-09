@@ -114,6 +114,11 @@ class GameState {
      * 6.293 way too early
      * 6.293 way too early
      * 6.493 slide stops too early
+     * ---
+     * more accurate input
+     * 6.493 - too early, jumps over green
+     * 6.593 - too early, jumps over green
+     * 6.693 - perfect
      * 
      * play_level_1.log:
      * @full-frame, scale=8x
