@@ -1,7 +1,6 @@
 #include <thread>
 #include <iostream>
 #include <sstream>
-#include <chrono>
 #include "include/interact.h"
 #include "include/reader.h"
 
@@ -20,6 +19,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sstream>
+#include <vector>
 
 struct buffer_config {
     uint32_t size;
@@ -100,13 +100,28 @@ class GameState {
     /* State transitions:
      * Menus (click:play) -> loading screen (anchor:moon) -> level loaded, no character (~139ms <33ms; 1200ms>) (anchor: white avatar) -> level (~6986ms) -> first jump
      */
-    /* timings between load end and first jump (regardless ping)
+    /* timings between load end and first jump (regardless ping) play_level_0.log
+     * @full-frame, scale=4x, variance ~100ms
      * 6.893 way too late (falls in, good after respawn)
      * 6.693 much too late (floats over (?), good after 2 crashes)
      * 6.393 a bit too late (falls into 2nd hole, good later)
      * 6.193 minimally too early (bug finishes it)
      * 6.193 minimally too early (bug finishes it)
-     * 6.234 - almost perfect (slide too late? or too early? quite far in the game)
+     * 6.243 almost perfect (slide stops too early ~70s)
+     * 6.293 slide stops too early
+     * ---
+     * @full-frame, scale=8x
+     * 6.293 way too early
+     * 6.293 way too early
+     * 6.493 slide stops too early
+     * 
+     * play_level_1.log:
+     * @full-frame, scale=8x
+     * 6.471 too early
+     * 6.671 - 147ms late (detect 200ms)
+     * 6.521 - 100ms early (detect 120ms)
+     * 6.421 - 30ms late [perfect] (detect 230ms)
+     * 6.421 - 144ms late (detect 190ms)
      */
 public:
     enum state {
@@ -116,15 +131,17 @@ public:
     };
 protected:
     enum state cur_state;
-    const cv::Point2i pixel = cv::Point2i(250, 30); // a pixel from the moon
+    const int scale_factor = 8;
+    const cv::Point2i pixel = (cv::Point2i(250, 30) * 4) / scale_factor; // a pixel from the moon
     const cv::Vec4b val = cv::Vec4b(252, 239, 222);
+    const int px_val_threshold = 5;
 public:
     GameState()
         : cur_state(UNKNOWN)
     {};
     void update(const cv::Mat &frame) {
         const cv::Vec4b bgr = frame.at<cv::Vec4b>(pixel); 
-        const int thr = 5;
+        const int thr = px_val_threshold;
         //std::cout << (int)bgr[0] << " " << (int)bgr[1] << " " << (int)bgr[2] << std::endl;
         if (std::abs(bgr[0] - val[0]) < thr &&
             std::abs(bgr[1] - val[1]) < thr &&
@@ -198,24 +215,6 @@ public:
     }
 };
 
-int playback_events(AdbInstance &adb, const std::vector<event> &events, float delay_sec=0) {
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now() + float_to_dur(delay_sec);
-    for (const event e : events) {
-        std::chrono::steady_clock::time_point event_time = begin + float_to_dur(e.start);
-        std::this_thread::sleep_until(event_time);
-        int desc = adb.start_touch(e.x, e.y);
-        std::cout << "ON: x " << e.x << " y " << e.y << " s " << e.start << " d " << e.duration << std::endl;
-        if (e.duration) {
-            event_time = event_time + float_to_dur(e.duration);
-            std::this_thread::sleep_until(event_time);
-        }
-        if (adb.end_touch(desc)) {
-            std::cerr << "invalid touch descriptor" << std::endl;
-        }
-        std::cout << "OFF" << std::endl;
-    }
-    return 0;
-}
 
 int main(int argc, char **argv) {
     if (argc < 2) {
@@ -262,7 +261,7 @@ int main(int argc, char **argv) {
     */
     
     std::cout << "going to start screen" << std::endl;
-    playback_events(adb, navigate_to_start);
+    adb.playback_events(navigate_to_start);
     std::cout << "at start screen, connecting video" << std::endl;
     Listener listener;
     if (listener.connect()) {
@@ -270,13 +269,13 @@ int main(int argc, char **argv) {
         return 1;
     }
     std::cout << "connected, starting level" << std::endl;
-    playback_events(adb, click_play);
+    adb.playback_events(click_play);
     std::cout << "waiting until level starts" << std::endl;
     if (listener.wait_until_level()) {
         return 1;
     }
     std::cout << "GO GO GO" << std::endl;
-    playback_events(adb, play_level);
+    adb.playback_events(play_level);
     std::cout << "done!" << std::endl;
     return 0;
 }

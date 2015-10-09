@@ -1,4 +1,6 @@
 #include <string>
+#include <vector>
+#include "include/common.h"
 
 class AdbInstance {
 protected:
@@ -11,6 +13,7 @@ protected:
 public:
     AdbInstance(const std::string &evdev_path);
     int set_device();
+    int playback_events(const std::vector<event> &events, float delay_sec=0);
     int start_touch(unsigned x, unsigned y);
     int end_touch(int desc);
     ~AdbInstance();

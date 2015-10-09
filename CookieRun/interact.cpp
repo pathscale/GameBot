@@ -2,10 +2,16 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
+#include <chrono>
+#include <thread>
 #include <stdlib.h>
 #include "include/interact.h"
 
 #define TRACKING_ID 0x1000abcd
+
+std::chrono::milliseconds float_to_dur(float dur) {
+    return std::chrono::milliseconds((int)(dur * 1000));
+}
 
 static std::string get_adb_command() {
     return "adb shell";
@@ -114,4 +120,24 @@ AdbInstance::~AdbInstance() {
         send_commands("exit");
         pclose(stream);
     }
+}
+
+int AdbInstance::playback_events(const std::vector<event> &events, float delay_sec) {
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now() + float_to_dur(delay_sec);
+    for (const event e : events) {
+        std::chrono::steady_clock::time_point event_time = begin + float_to_dur(e.start);
+        std::this_thread::sleep_until(event_time);
+        int desc = start_touch(e.x, e.y);
+        //std::cout << "ON: x " << e.x << " y " << e.y << " s " << e.start << " d " << e.duration << std::endl;
+        if (e.duration) {
+            event_time = event_time + float_to_dur(e.duration);
+            std::this_thread::sleep_until(event_time);
+        }
+        int res = end_touch(desc);
+        if (res) {
+            std::cerr << "invalid touch descriptor" << std::endl;
+        }
+        //std::cout << "OFF" << std::endl;
+    }
+    return 0;
 }

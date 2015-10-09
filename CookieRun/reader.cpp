@@ -40,7 +40,3 @@ const std::vector<event> read_events(std::istream &i) {
     }
     return ret;
 }
-
-std::chrono::milliseconds float_to_dur(float dur) {
-    return std::chrono::milliseconds((int)(dur * 1000));
-}
