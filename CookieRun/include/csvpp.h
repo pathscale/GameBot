@@ -19,6 +19,7 @@ namespace csvpp {
 			std::vector<std::string> header;
 			bool skipheader;
 			std::string delimiter_char; // this is a string because the split function helper is expecting a string, but really this is just a char
+			std::string comment_char = ";";
 		public:
 			const char * newline;
 			// Adding support for custom delimiter character

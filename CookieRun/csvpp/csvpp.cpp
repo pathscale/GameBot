@@ -93,7 +93,14 @@ namespace csvpp {
 					currentheader++;
 					continue;
 				}
-
+				
+				if (c == r.comment_char[0]) {
+					if (startquote) {
+						buffer2 << c;
+						continue;
+					}
+					break;
+				}
 
 				// If the character is a quote then we need to note this and use that to ignore commas
 				// added logic to ignore whitespace before and after the whitespace
