@@ -5,6 +5,7 @@ QT += qml quick widgets
 CONFIG += c++11
 
 SOURCES += \
+    src/detection.cpp \
     src/botprogram.cpp \
     src/cocbattlefield.cpp \
     src/main.cpp \
@@ -30,7 +31,8 @@ HEADERS += \
 LIBS += \
     -lopencv_core \
     -lopencv_highgui \
-    -lopencv_imgproc
+    -lopencv_imgproc \
+    -lopencv_imgcodecs
 
 DISTFILES += \
     README.md \
